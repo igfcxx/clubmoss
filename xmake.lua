@@ -1,0 +1,27 @@
+set_project("clubmoss")
+set_version("0.0.1")
+
+add_rules("mode.release", "mode.debug")
+set_allowedmodes("release", "debug")
+set_allowedarchs("x86_64", "x64")
+set_languages("c99", "cxx23")
+set_optimize("fastest")
+set_fpmodels("fast")
+
+add_requires("openmp          ", {debug = true})
+add_requires("toml11    >= 4.2", {debug = true})
+add_requires("doctest   >= 2.4", {debug = true})
+add_requires("nanobench >= 4.3", {debug = true})
+add_requires("fmt       >=11.1", {debug = true})
+
+target("lib")
+    set_kind("shared")
+    add_files("src/**.cxx")
+    add_packages("openmp", "toml11")
+
+target("test")
+    set_kind("binary")
+    add_files("src/**.cxx")
+    add_files("test/**.cxx")
+    add_packages("doctest", "nanobench", "fmt")
+    add_packages("openmp", "toml11")
