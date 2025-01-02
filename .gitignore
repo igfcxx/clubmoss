@@ -1,0 +1,13 @@
+# Xmake builds
+.xmake/
+build/
+
+# Cmake builds
+CMakeLists.txt
+cmake-build*/
+
+# IDE configs
+.idea/
+
+# Caches
+cache/
