@@ -3,6 +3,7 @@
 
 #include <array>
 #include <vector>
+#include <bitset>
 #include <string>
 #include <format>
 #include <ranges>
