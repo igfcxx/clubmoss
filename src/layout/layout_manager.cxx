@@ -68,7 +68,6 @@ auto Manager::assignMutableKeys(Layout& layout) noexcept -> void {
  * @note 假定 layout 合法且与当前设置兼容.
  **/
 auto Manager::reinit(Layout& layout) noexcept -> void {
-    assert(layout.isValid());
     assert(canManage(layout));
     assignMutableKeys(layout);
     assert(layout.isValid());
