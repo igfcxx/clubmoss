@@ -1,0 +1,7 @@
+[[mutable_areas]]
+cap_list = ["A", "B", "C"]
+pos_list = [0, 1, 2]
+
+[[mutable_areas]]
+cap_list = ["C", "D", "E"]
+pos_list = [3, 4, 5]

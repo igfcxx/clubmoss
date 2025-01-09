@@ -7,20 +7,6 @@ namespace clubmoss::test {
 
 TEST_SUITE("Test Layout") {
 
-    #define CLUBMOSS_SHOW_ERR_MSG
-
-    auto check(const std::string_view seq) -> void {
-        try {
-            Layout l(seq);
-            REQUIRE(0); // 不应执行
-        } catch (const std::exception& e) {
-            fmt::println("\n{}", e.what());
-        } catch (...) {
-            fmt::println("\nUnknown exception");
-            REQUIRE(false); // 不应执行
-        }
-    }
-
     // 合法序列
     static const std::string QWERTY_SEQ = "QWERTYUIOPASDFGHJKL;ZXCVBNM,./";
     static const std::string DVORAK_SEQ = "/,.PYFGCRLAOEUIDHTNS;QJKXBMWVZ";
@@ -34,23 +20,16 @@ TEST_SUITE("Test Layout") {
     TEST_CASE("test Layout(seq) construction") {
 
         SUBCASE("success") {
-            REQUIRE_NOTHROW(Layout _(QWERTY_SEQ));
-            REQUIRE_NOTHROW(Layout _(DVORAK_SEQ));
+            REQUIRE_NOTHROW((Layout(QWERTY_SEQ)));
+            REQUIRE_NOTHROW((Layout(DVORAK_SEQ)));
         }
 
         SUBCASE("fail") {
-            // 定义 CLUBMOSS_SHOW_ERR_MSG 宏以查看报错信息.
-            #ifdef CLUBMOSS_SHOW_ERR_MSG
-            fmt::println("\nShow Layout(seq) error message:");
-            check(LEN31_SEQ); check(LOWER_SEQ);
-            check(COLON_SEQ); check(DUP_Q_SEQ);
-            fmt::print("\n");
-            #else
-            REQUIRE_THROWS_AS((Layout(LEN31_SEQ)), FatalError);
-            REQUIRE_THROWS_AS((Layout(LOWER_SEQ)), FatalError);
-            REQUIRE_THROWS_AS((Layout(COLON_SEQ)), FatalError);
-            REQUIRE_THROWS_AS((Layout(DUP_Q_SEQ)), FatalError);
-            #endif
+            printTitle("Show Layout(seq) error messages:");
+            check([] { (Layout(LEN31_SEQ)); });
+            check([] { (Layout(LOWER_SEQ)); });
+            check([] { (Layout(COLON_SEQ)); });
+            check([] { (Layout(DUP_Q_SEQ)); });
         }
     }
 
@@ -69,8 +48,8 @@ TEST_SUITE("Test Layout") {
         }
 
         SUBCASE("invalid") {
-            // REQUIRE_FALSE(UnsafeLayout(LOWER_SEQ).isValid()); // 产生断言失败
-            // REQUIRE_FALSE(UnsafeLayout(COLON_SEQ).isValid()); // 产生断言失败
+            // REQUIRE_FALSE(UnsafeLayout(LOWER_SEQ).isValid()); // debug 模式下无法通过断言
+            // REQUIRE_FALSE(UnsafeLayout(COLON_SEQ).isValid()); // debug 模式下无法通过断言
             REQUIRE_FALSE(UnsafeLayout(DUP_Q_SEQ).isValid());
         }
     }

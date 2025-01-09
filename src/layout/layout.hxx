@@ -10,6 +10,7 @@ namespace layout {
     class Area;
 }
 
+// 键盘布局 //
 class Layout {
 public:
     explicit Layout(std::string_view seq);
@@ -24,6 +25,7 @@ public:
     auto operator==(const Layout& other) const noexcept -> bool;
 
 protected:
+    // 按键列表, 存储了[键值]与[键位]的双向映射
     std::array<u8, MAX_KEY_CODE> key_map_{};
 
     Layout();
@@ -47,7 +49,7 @@ private:
             : FatalError(std::format(WHAT, seq, msg)) {}
 
     private:
-        static constexpr auto WHAT{"Illegal layout \"{:s}\":\n{:s}"};
+        static constexpr auto WHAT{"Illegal layout \"{:s}\"\n{:s}"};
     };
 
     friend class layout::Manager;

@@ -8,6 +8,7 @@
 #include <format>
 #include <ranges>
 #include <memory>
+#include <utility>
 #include <filesystem>
 
 #include <toml.hpp>
@@ -38,6 +39,8 @@ static constexpr std::array<Pos, KEY_COUNT> POS_SET = [] -> auto {
     }
     return temp;
 }();
+
+using namespace toml::literals::toml_literals;
 
 class Utils final {
 public:

@@ -31,6 +31,16 @@ using Pos = u8; // 键位(编号), ∈ [0, 29]
 using Col = u8; // 列号, ∈ [0, 9]
 using Row = u8; // 行号, ∈ [0, 2]
 
+struct Key final {
+    Cap cap{0};
+    Pos pos{0};
+
+    Key() = delete;
+
+    Key(const Cap cap, const Pos pos)
+        : cap(cap), pos(pos) {}
+};
+
 class SplitMix64 final {
 public:
     using result_type = uint64_t;
@@ -77,7 +87,7 @@ public:
     FatalError() = delete;
 
     explicit FatalError(const std::string_view msg) noexcept
-        : std::runtime_error(std::format("Fatal Error: {}", msg)) {}
+        : std::runtime_error(std::format("[error] {}", msg)) {}
 };
 
 }

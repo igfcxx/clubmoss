@@ -25,7 +25,6 @@ auto Layout::validateSeq(const std::string_view seq) -> void {
         constexpr auto what{"expect seq length = {:d}, got {:d}"};
         throw IllegalSeq(std::format(what, KEY_COUNT, len), seq);
     }
-
     // 检验[键值]合法性
     for (const char ch : seq) {
         if (not Utils::isLegalCap(ch)) {
@@ -33,7 +32,6 @@ auto Layout::validateSeq(const std::string_view seq) -> void {
             throw IllegalSeq(std::format(what, ch), seq);
         }
     }
-
     // 检验[键值]唯一性
     Marks observed_caps(0);
     for (const char ch : seq) {
@@ -66,6 +64,12 @@ auto Layout::toCapSeq() const noexcept -> std::string {
     return {caps.begin(), caps.end()};
 }
 
+/**
+ * @brief 设置按键.
+ * @param cap 键值.
+ * @param pos 键位.
+ * @note 可能导致未定义行为.
+ **/
 auto Layout::setKey(const Cap cap, const Pos pos) noexcept -> void {
     assert(Utils::isLegalCap(cap));
     assert(Utils::isLegalPos(pos));
@@ -73,6 +77,11 @@ auto Layout::setKey(const Cap cap, const Pos pos) noexcept -> void {
     key_map_[pos] = cap;
 }
 
+/**
+ * @brief 交换两个按键.
+ * @param pos1 第一个键位.
+ * @param pos2 第二个键位.
+ **/
 auto Layout::swap2Keys(const Pos pos1, const Pos pos2) noexcept -> void {
     assert(Utils::isLegalPos(pos1));
     assert(Utils::isLegalPos(pos2));

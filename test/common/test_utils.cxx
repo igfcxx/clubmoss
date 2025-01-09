@@ -14,11 +14,11 @@ TEST_SUITE("Test Utils") {
     }
 
     TEST_CASE("show Utils::absPath(str) I/O") {
+        printTitle("Show Utils::absPath(str) I/O:");
         const std::string abs_path = Utils::absPath(SUB_PATH);
-        fmt::println("\nShow Utils::absPath(str) I/O:");
-        fmt::println("i - relative path: {}", SUB_PATH);
-        fmt::println("o - absolute path: {}", abs_path);
-        fmt::print("\n");
+        fmt::println(stderr, "i - relative path: {}", SUB_PATH);
+        fmt::println(stderr, "o - absolute path: {}", abs_path);
+        blankLine();
     }
 }
 
