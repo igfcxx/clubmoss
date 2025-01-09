@@ -24,9 +24,11 @@ Manager::Manager(const Manager& other)
 
 Manager& Manager::operator=(const Manager& rhs) {
     if (this != &rhs) {
-        mutable_areas_ = rhs.mutable_areas_;
-        pinned_keys_   = rhs.pinned_keys_;
-        area_ids_      = rhs.area_ids_;
+        mutable_areas_ = cfg_.mutable_areas_;
+        pinned_keys_   = cfg_.pinned_keys_;
+        area_ids_      = cfg_.area_ids_;
+
+        prng_.seed(std::random_device()());
 
         const_cast<bool&>(need_to_select_area_) = rhs.need_to_select_area_;
         const_cast<bool&>(have_pinned_key_)     = rhs.have_pinned_key_;
