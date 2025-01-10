@@ -1,0 +1,7 @@
+[[mutable_areas]]
+cap_list = ["X", "Y", "Z"]
+pos_list = [0, 1, 2]
+
+[[pinned_keys]]
+cap = "Z"
+pos = 3

@@ -1,6 +1,14 @@
 [[mutable_areas]]
+cap_list = ["A", "E", "I", "O", "U", "N", "H", "T"]
+pos_list = 1011121316171819 ##
+
+[[mutable_areas]]
 cap_list = ["Z", "X", "C", "V"]
 pos_list = [20, 21, 22, 23]
+
+[[pinned_keys]]
+cap = ";"
+pos = 9
 
 [[pinned_keys]]
 cap = ","
@@ -13,7 +21,3 @@ pos = 28
 [[pinned_keys]]
 cap = "/"
 pos = 29
-
-[[pinned_keys]]
-cap = ";"
-pos = 9
