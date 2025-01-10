@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 
 #include "../../src/common/utils.hxx"
-#include "../utilities.hxx"
+#include "../test_utilities.hxx"
 
 namespace clubmoss::test {
 

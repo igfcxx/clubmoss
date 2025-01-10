@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 
 #include "../../src/layout/layout_area.hxx"
-#include "../utilities.hxx"
+#include "../test_utilities.hxx"
 
 namespace clubmoss::layout::test {
 

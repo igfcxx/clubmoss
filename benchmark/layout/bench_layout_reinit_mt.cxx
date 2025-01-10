@@ -6,6 +6,7 @@
 #include <doctest/doctest.h>
 
 #include "../../src/layout/layout_manager.hxx"
+#include "default_layout_configs.hxx"
 
 static constexpr size_t NUM_LAYOUTS    = 1000;
 static constexpr size_t MAX_DUPLICATES = 5;
@@ -39,7 +40,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
     }
 
     auto baseline(ankerl::nanobench::Bench& bench) -> void {
-        auto layouts = createLayouts(manager);
+        LytVec layouts = createLayouts(manager);
         bench.run(
             "baseline (1)",
             [&]() -> void {
@@ -52,7 +53,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
     }
 
     auto benchOmpStatic(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
-        auto layouts = createLayouts(manager);
+        LytVec layouts = createLayouts(manager);
         bench.run(
             fmt::format("omp: static ({:d})", num_threads).c_str(),
             [&]() -> void {
@@ -66,7 +67,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
     }
 
     auto benchOmpGuided(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
-        auto layouts = createLayouts(manager);
+        LytVec layouts = createLayouts(manager);
         bench.run(
             fmt::format("omp: guided ({:d})", num_threads).c_str(),
             [&]() -> void {
@@ -79,15 +80,13 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
         checkRandomness(layouts);
     }
 
-    void processRange(Manager& manager, const LytVec& layouts, const uz beg, const uz end) {
-        for (uz i = beg; i < end; ++i) {
-            manager.reinit(*layouts[i]);
-        }
-    }
-
     auto benchStdThread(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
         std::vector managers(num_threads, Manager());
-        auto layouts = createLayouts(managers[0]);
+        LytVec layouts = createLayouts(managers[0]);
+
+        auto process_range = [](Manager& manager, const LytVec& layouts, const uz beg, const uz end) -> void {
+            for (uz i = beg; i < end; ++i) { manager.reinit(*layouts[i]); }
+        };
 
         const uz range = NUM_LAYOUTS / num_threads;
         bench.run(
@@ -97,7 +96,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
                 for (uz thread_id = 0; thread_id < num_threads; ++thread_id) {
                     const uz beg = thread_id * range;
                     const uz end = (thread_id == num_threads - 1) ? NUM_LAYOUTS : beg + range;
-                    threads.emplace_back(processRange, std::ref(managers[thread_id]), std::ref(layouts), beg, end);
+                    threads.emplace_back(process_range, std::ref(managers[thread_id]), std::ref(layouts), beg, end);
                 }
                 for (auto& t : threads) {
                     t.join();
@@ -108,10 +107,10 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
         checkRandomness(layouts);
     }
 
-    auto bench(std::string_view pattern_name) -> void {
+    auto benchAll(std::string_view title) -> void {
         ankerl::nanobench::Bench b;
 
-        b.title(fmt::format("reinit() - {:s}", pattern_name))
+        b.title(fmt::format("reinit() - {:s}", title))
          .unit("layout processed")
          .relative(true)
          .warmup(10)
@@ -121,88 +120,22 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
         baseline(b);
         for (uz i = 2; i <= MAX_THREADS; ++i) {
             omp_set_num_threads(static_cast<int>(i));
-            benchOmpStatic(b, i);
-            benchOmpGuided(b, i);
             // benchStdThread(b, i);
+            // benchOmpStatic(b, i);
+            benchOmpGuided(b, i);
         }
     }
-
-    const auto cfg1 = u8R"(
-        [[pinned_keys]]
-        cap = ";"
-        pos = 9
-
-        [[pinned_keys]]
-        cap = ","
-        pos = 27
-
-        [[pinned_keys]]
-        cap = "."
-        pos = 28
-
-        [[pinned_keys]]
-        cap = "/"
-        pos = 29
-    )"_toml;
-
-    const auto cfg2 = u8R"(
-        [[mutable_areas]]
-        cap_list = ["Z", "X", "C", "V"]
-        pos_list = [20, 21, 22, 23]
-
-        [[pinned_keys]]
-        cap = ";"
-        pos = 9
-
-        [[pinned_keys]]
-        cap = ","
-        pos = 27
-
-        [[pinned_keys]]
-        cap = "."
-        pos = 28
-
-        [[pinned_keys]]
-        cap = "/"
-        pos = 29
-    )"_toml;
-
-    const auto cfg3 = u8R"(
-        [[mutable_areas]]
-        cap_list = ["A", "E", "I", "O", "U", "N", "H", "T"]
-        pos_list = [10, 11, 12, 13, 16, 17, 18, 19]
-
-        [[mutable_areas]]
-        cap_list = ["Z", "X", "C", "V"]
-        pos_list = [20, 21, 22, 23]
-
-        [[pinned_keys]]
-        cap = ";"
-        pos = 9
-
-        [[pinned_keys]]
-        cap = ","
-        pos = 27
-
-        [[pinned_keys]]
-        cap = "."
-        pos = 28
-
-        [[pinned_keys]]
-        cap = "/"
-        pos = 29
-    )"_toml;
 
     TEST_CASE("bench layout::Manager::reinit()") {
         REQUIRE_LE(MAX_THREADS, std::thread::hardware_concurrency());
         REQUIRE_GE(MAX_THREADS, 1);
 
-        Manager::loadCfg(cfg1);
-        bench("1 area"); // 26 mutable keys, 4 pinned keys
-        Manager::loadCfg(cfg2);
-        bench("2 area"); // 22 + 4 mutable keys, 4 pinned keys
-        Manager::loadCfg(cfg2);
-        bench("3 area"); // 14 + 8 + 4 mutable keys, 4 pinned keys
+        Manager::loadCfg(CFG_1_AREA);
+        benchAll("1 area"); // 26 可变按键
+        Manager::loadCfg(CFG_2_AREA);
+        benchAll("2 area"); // 22 + 4 可变按键
+        Manager::loadCfg(CFG_3_AREA);
+        benchAll("3 area"); // 14 + 8 + 4 可变按键
     }
 }
 

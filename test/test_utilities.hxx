@@ -1,5 +1,5 @@
-#ifndef TEST_UTILS_HXX
-#define TEST_UTILS_HXX
+#ifndef CLUBMOSS_TEST_UTILITIES_HXX
+#define CLUBMOSS_TEST_UTILITIES_HXX
 
 #include <functional>
 
@@ -88,4 +88,4 @@ namespace layout {
 
 }
 
-#endif //TEST_UTILS_HXX
+#endif //CLUBMOSS_TEST_UTILITIES_HXX
