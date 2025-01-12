@@ -57,22 +57,31 @@ private:
 };
 
 namespace layout::baselines {
-    // 部分布局使用'/'替代了不在键值集中的字符
-    static const auto QWERTY   = Layout("QWERTYUIOPASDFGHJKL;ZXCVBNM,./");
-    static const auto DVORAK   = Layout(";,.PYFGCRLAOEUIDHTNS/QJKXBMWVZ");
-    static const auto COLEMAK  = Layout("QWFPGJLUY;ARSTDHNEIOZXCVBKM,./");
-    static const auto MINIMAK  = Layout("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./"); // 12-keys 版本
-    static const auto KLAUSLER = Layout("K,UYPWLMFCOAEIDRNTHSQ./;ZXVGBJ");
-    static const auto CAPEWELL = Layout(".YWDFJPLUQAERSGBTNIOXZCV;KMH,/"); // close-keys 版本
-    static const auto QGMLWY   = Layout("QGMLWYFUB;DSTNRIAEOHZXCVJKP,./"); // 源于 Carpalx 项目
-    static const auto ASSET    = Layout("QWFGJYPUL;ASETDHNIORZXCVBKM,./");
-    static const auto ARENSITO = Layout("QL.P/;FUDKARENBGSITOZW,HJVCYMX");
-    static const auto WORKMAN  = Layout("QDRWBJFUP;ASHTGYNEOIZXMCVKL,./");
-    static const auto NORMAN   = Layout("QWDFKJURL;ASETGYNIOHZXCVBPM,./");
-    static const auto CHIN     = Layout(",TSZBPFRD.OEAGYLNIHUXQJCVKMW;/");
-    static const auto GOAT     = Layout(",SEZBPFRD.GOATYLNIHUXQJCVKMW;/");
 
-    static const std::vector ALL_BASELINES{
+    class Baseline : public Layout {
+    public:
+        Baseline(const std::string_view seq, const std::string_view name)
+            : Layout(seq), name(name) {}
+
+        const std::string name;
+    };
+
+    // 部分布局使用'/'替代了不在键值集中的字符
+    static const auto QWERTY   = Baseline("QWERTYUIOPASDFGHJKL;ZXCVBNM,./", "QWERTY");
+    static const auto DVORAK   = Baseline(";,.PYFGCRLAOEUIDHTNS/QJKXBMWVZ", "Dvorak");
+    static const auto COLEMAK  = Baseline("QWFPGJLUY;ARSTDHNEIOZXCVBKM,./", "Colemak");
+    static const auto MINIMAK  = Baseline("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./", "Miniak"); // 12-keys 版本
+    static const auto KLAUSLER = Baseline("K,UYPWLMFCOAEIDRNTHSQ./;ZXVGBJ", "Klausler");
+    static const auto CAPEWELL = Baseline(".YWDFJPLUQAERSGBTNIOXZCV;KMH,/", "Capewell"); // close-keys 版本
+    static const auto QGMLWY   = Baseline("QGMLWYFUB;DSTNRIAEOHZXCVJKP,./", "QGMLWY");   // 源于 Carpalx 项目
+    static const auto ASSET    = Baseline("QWFGJYPUL;ASETDHNIORZXCVBKM,./", "Asset");
+    static const auto ARENSITO = Baseline("QL.P/;FUDKARENBGSITOZW,HJVCYMX", "Arensito");
+    static const auto WORKMAN  = Baseline("QDRWBJFUP;ASHTGYNEOIZXMCVKL,./", "Workman");
+    static const auto NORMAN   = Baseline("QWDFKJURL;ASETGYNIOHZXCVBPM,./", "Norman");
+    static const auto CHIN     = Baseline(",TSZBPFRD.OEAGYLNIHUXQJCVKMW;/", "Chin");
+    static const auto GOAT     = Baseline(",SEZBPFRD.GOATYLNIHUXQJCVKMW;/", "Goat");
+
+    static const std::vector ALL{
         QWERTY, DVORAK, COLEMAK, MINIMAK, KLAUSLER, CAPEWELL,
         QGMLWY, ASSET, ARENSITO, WORKMAN, NORMAN, CHIN, GOAT,
     };

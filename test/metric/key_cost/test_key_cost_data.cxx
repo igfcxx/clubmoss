@@ -1,37 +1,37 @@
 #include <doctest/doctest.h>
 
-#include "../../src/layout/layout_config.hxx"
-#include "../test_utilities.hxx"
+#include "../../../src/metric/key_cost/key_cost_data.hxx"
+#include "../../test_utilities.hxx"
 
-namespace clubmoss::layout::test {
-TEST_SUITE("Test layout::Config") {
+namespace clubmoss::metric::key_cost::test {
 
-    Config& cfg = Config::getInstance();
+TEST_SUITE("Test metric::key_cost::Data") {
 
     static auto findTestFiles(const std::string& sub_dir) -> PathVec {
-        static const std::string root = Utils::absPath("test/layout/test_files");
+        static const std::string root = Utils::absPath("test/metric/key_cost/data_to_test");
         return collectTestFiles(root, {sub_dir});
     }
 
-    TEST_CASE("test layout::Config::loadCfg(Toml)") {
+    TEST_CASE("test metric::key_cost::Data(Toml) construction") {
 
         SUBCASE("should pass") {
             static const PathVec test_files = findTestFiles("should_pass");
             for (const fs::path& file : test_files) {
                 const Toml& t = toml::parse(file);
-                REQUIRE_NOTHROW(cfg.loadCfg(t));
+                REQUIRE_NOTHROW((Data(t)));
             }
         }
 
         SUBCASE("should fail") {
-            printTitle("Show layout::Config::loadCfg(Toml) error messages:");
+            printTitle("Show metric::key_cost::Config::loadCfg(Toml) error messages:");
             static const PathVec test_files = findTestFiles("should_fail");
             for (const fs::path& file : test_files) {
                 const Toml& t = toml::parse(file);
-                check([&] { cfg.loadCfg(t); });
+                check([&] { (Data(t)); });
             }
         }
     }
+
 }
 
 }

@@ -67,9 +67,14 @@ public:
         return 0 <= row and row < ROW_COUNT;
     }
 
-    static auto posFromRowCol(Row, Col) noexcept -> Pos;
-    static auto colOfPos(Pos) noexcept -> Col;
-    static auto rowOfPos(Pos) noexcept -> Row;
+    static auto posOf(Row, Col) noexcept -> Pos;
+    static auto colOf(Pos) noexcept -> Col;
+    static auto rowOf(Pos) noexcept -> Row;
+
+    template <typename Container>
+    static auto sum(const Container& container) -> typename Container::value_type {
+        return std::accumulate(container.begin(), container.end(), static_cast<typename Container::value_type>(0.0));
+    }
 
 private:
     using FileNames     = std::vector<std::string>;

@@ -50,26 +50,8 @@ private:
 
     auto resetCriticalMembers() -> void;
 
-    class IllegalCfg final : public FatalError {
-    public:
-        IllegalCfg() = delete;
-
-        explicit IllegalCfg(const std::string_view msg) noexcept
-            : FatalError(std::format(WHAT, msg)) {}
-
-        template <typename TC, typename... Ts>
-        explicit IllegalCfg(
-            const std::string& title,
-            const toml::basic_value<TC>& v,
-            const std::string& msg, Ts&&... tail
-        ) noexcept
-            : FatalError(std::format(WHAT, format_error(title, v, msg, std::forward<Ts>(tail)...))) {}
-
-    private:
-        static constexpr auto WHAT{
-            "Illegal layout configuration: {:s}"
-        };
-    };
+    static constexpr char WHAT[]{"Illegal layout config: {:s}"};
+    using IllegalCfg = IllegalToml<WHAT>;
 
     friend class Manager;
 

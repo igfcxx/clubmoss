@@ -20,8 +20,9 @@
 
 #include <random>
 
-namespace clubmoss {
+#include <better-enums/enum.h>
 
+namespace clubmoss {
 using u8 = uint8_t; // 最小无符号整型
 using uz = size_t;  // 原生无符号整型
 using fz = double;  // 默认浮点型
@@ -51,12 +52,14 @@ public:
         this->seed(seed), warmup();
     }
 
+    // @formatter:off //
     auto operator()() -> result_type {
         state_ += 0x9E3779B97F4A7C15ull; uint64_t z = state_;
         z = (z ^ (z >> 30ull)) * 0xBF58476D1CE4E5B9ull;
         z = (z ^ (z >> 27ull)) * 0x94D049BB133111EBull;
         return z ^ (z >> 31ull);
     }
+    // @formatter:on //
 
     auto seed(const uint64_t seed) -> void {
         this->state_ = seed;
@@ -82,12 +85,45 @@ private:
 
 using Prng = SplitMix64;
 
+// @formatter:off //
+BETTER_ENUM(
+    Finger, uz,
+    LeftPinky   = 0,
+    LeftRing    = 1,
+    LeftMiddle  = 2,
+    LeftIndex   = 3,
+    LeftThumb   = 4,
+    RightThumb  = 5,
+    RightIndex  = 6,
+    RightMiddle = 7,
+    RightRing   = 8,
+    RightPinky  = 9
+)
+// @formatter:on //
+
 class FatalError : public std::runtime_error {
 public:
     FatalError() = delete;
 
     explicit FatalError(const std::string_view msg) noexcept
         : std::runtime_error(std::format("[error] {}", msg)) {}
+};
+
+template <const char* WHAT>
+class IllegalToml final : public FatalError {
+public:
+    IllegalToml() = delete;
+
+    explicit IllegalToml(const std::string_view msg) noexcept
+        : FatalError(std::format(WHAT, msg)) {}
+
+    template <typename TC, typename... Ts>
+    explicit IllegalToml(
+        const std::string& title,
+        const toml::basic_value<TC>& v,
+        const std::string& msg, Ts&&... tail
+    ) noexcept
+        : FatalError(std::format(WHAT, format_error(title, v, msg, std::forward<Ts>(tail)...))) {}
 };
 
 }

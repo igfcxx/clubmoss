@@ -55,7 +55,7 @@ auto Config::validateConfig(const Toml& cfg) -> void {
         throw IllegalCfg(std::format(what, MIN_MUTABLE_KEYS, num_mutable_keys_));
     }
 
-    // Check mutable areas and owned keys
+    // 统计[可变区域]的数量, 并检验字段的合法性
     if (cfg.contains("mutable_areas")) {
         const Toml& areas = cfg.at("mutable_areas");
         for (const Toml& area : areas.as_array()) {
@@ -80,6 +80,7 @@ auto Config::validateFieldSize(const Toml& area_cfg) -> void {
     const uz num_val = get_size(cap_list);
     const uz num_pos = get_size(pos_list);
 
+    // [键值列表]与[键位列表]的长度应当相等
     if (num_val != num_pos) {
         throw IllegalCfg(
             "cannot infer area size form unequal arrays",
@@ -88,7 +89,7 @@ auto Config::validateFieldSize(const Toml& area_cfg) -> void {
             "size of `cap_list` and `pos_list` must be equal"
         );
     }
-
+    // [可变区域]的大小应当在 [2, 30] 内
     if (const uz size = num_val; size < 2 or size > KEY_COUNT) {
         throw IllegalCfg(
             "illegal area size",
@@ -136,7 +137,7 @@ auto Config::validateCap(const Toml& cap) -> void {
     // [键值]应当不重不漏
     if (observed(c)) {
         throw IllegalCfg(
-            "duplicate keys:",
+            "duplicate keys",
             *where_[c], "1st", cap, "2nd"
         );
     }
@@ -153,7 +154,7 @@ auto Config::validatePos(const Toml& pos) -> void {
         );
     }
 
-    // position should not duplicate
+    // [键位]应当不重不漏
     if (observed(p)) {
         throw IllegalCfg(
             "duplicate keys",

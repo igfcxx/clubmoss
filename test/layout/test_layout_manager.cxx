@@ -3,7 +3,7 @@
 #include "../../src/layout/layout_manager.hxx"
 #include "../test_utilities.hxx"
 
-namespace clubmoss::layout::tests {
+namespace clubmoss::layout::test {
 
 TEST_SUITE("Test layout::Manager") {
 

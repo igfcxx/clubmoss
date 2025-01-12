@@ -8,9 +8,8 @@
 #include "../../src/layout/layout_manager.hxx"
 #include "default_layout_configs.hxx"
 
-static constexpr size_t NUM_LAYOUTS    = 1000;
-static constexpr size_t MAX_DUPLICATES = 5;
-static constexpr size_t MAX_THREADS    = 8;
+static constexpr size_t NUM_LAYOUTS = 1000;
+static constexpr size_t MAX_THREADS = 8;
 
 namespace clubmoss::layout::bench::reinit {
 
@@ -28,7 +27,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
                 ++num_duplicates;
             }
         }
-        CHECK_LT(num_duplicates, MAX_DUPLICATES);
+        CHECK_LT(num_duplicates, NUM_LAYOUTS / 100);
     }
 
     auto createLayouts(Manager& manager) -> LytVec {

@@ -57,7 +57,7 @@ auto Utils::findAllRequiredFiles(const std::filesystem::path& path) -> bool {
  * @param row 行号.
  * @param col 列号.
  **/
-auto Utils::posFromRowCol(const Row row, const Col col) noexcept -> Pos {
+auto Utils::posOf(const Row row, const Col col) noexcept -> Pos {
     assert(Utils::isLegalRow(row));
     assert(Utils::isLegalCol(col));
     return row * COL_COUNT + col;
@@ -67,7 +67,7 @@ auto Utils::posFromRowCol(const Row row, const Col col) noexcept -> Pos {
  * @brief 键位 -> 列号.
  * @param pos 键位.
  **/
-auto Utils::colOfPos(const Pos pos) noexcept -> Col {
+auto Utils::colOf(const Pos pos) noexcept -> Col {
     assert(Utils::isLegalPos(pos));
     return pos % COL_COUNT;
 }
@@ -76,7 +76,7 @@ auto Utils::colOfPos(const Pos pos) noexcept -> Col {
  * @brief 键位 -> 行号.
  * @param pos 键位.
  **/
-auto Utils::rowOfPos(const Pos pos) noexcept -> Row {
+auto Utils::rowOf(const Pos pos) noexcept -> Row {
     assert(Utils::isLegalPos(pos));
     return pos / COL_COUNT;
 }
