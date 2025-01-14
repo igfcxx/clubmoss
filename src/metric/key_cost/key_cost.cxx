@@ -35,12 +35,36 @@ auto KeyCost::analyze(const Layout& layout) -> void {
  * @param layout 输入的布局
  * @return 击键成本
  */
-auto KeyCost::measure(const Layout& layout) -> fz {
+auto KeyCost::measure1(const Layout& layout) -> fz {
     cost_ = 0.0;
     for (const Cap cap : CAP_SET) {
         const fz freq = data_.char_freq_[cap];
         const Pos pos = layout.getPos(cap);
         cost_ += cfg_.costs_[pos] * freq;
+    }
+    return cost_;
+}
+
+auto KeyCost::measure2(const Layout& layout) -> fz {
+    cost_ = 0.0;
+    for (uz i = 0; i < KEY_COUNT; i += 2) {
+        const auto ch1 = data_.records_[i];
+        const auto ch2 = data_.records_[i + 1];
+        const Pos pos1 = layout.getPos(ch1.cap);
+        const Pos pos2 = layout.getPos(ch2.cap);
+        cost_ += cfg_.costs_[pos1] * ch1.freq + cfg_.costs_[pos2] * ch2.freq;
+    }
+    return cost_;
+}
+
+auto KeyCost::measure3(const Layout& layout) -> fz {
+    cost_ = 0.0;
+    for (uz i = 0; i < KEY_COUNT; i += 2) {
+        const fz freq1 = data_.freq_[i];
+        const fz freq2 = data_.freq_[i + 1];
+        const Pos pos1 = layout.getPos(data_.caps_[i]);
+        const Pos pos2 = layout.getPos(data_.caps_[i + 1]);
+        cost_ += cfg_.costs_[pos1] * freq1 + cfg_.costs_[pos2] * freq2;
     }
     return cost_;
 }

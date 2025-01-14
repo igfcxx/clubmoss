@@ -18,6 +18,7 @@
 #ifndef CLUBMOSS_TYPES_HXX
 #define CLUBMOSS_TYPES_HXX
 
+#include <cfloat>
 #include <random>
 
 #include <better-enums/enum.h>

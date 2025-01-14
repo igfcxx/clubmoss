@@ -4,11 +4,14 @@ namespace clubmoss::metric::key_cost {
 
 Data::Data(const Toml& data) {
     char_freq_.fill(0.0);
-    for (const auto& [k, v] : data.as_table()) {
-        validateLine(data, k);
-        const auto c  = std::toupper(k[0]);
-        const auto f  = static_cast<fz>(v.as_floating());
+    for (const auto& [i, node] : data.as_table() | std::views::enumerate) {
+        validateLine(node);
+        const auto c  = std::toupper(node.first[0]);
+        const auto f  = static_cast<fz>(node.second.as_floating());
+        records_[i]   = Char(c, f);
         char_freq_[c] = f;
+        caps_[i]      = c;
+        freq_[i]      = f;
     }
     // 所有按键的频率之和应该为 1.0
     if (const fz sum = Utils::sum(char_freq_);
@@ -23,12 +26,13 @@ Data::Data(const Toml& data) {
     }
 }
 
-auto Data::validateLine(const Toml& table, const std::string_view key) -> void {
-    const Toml& value = table.at(key.data());
+auto Data::validateLine(const std::pair<const std::string, const Toml&>& node) -> void {
+    const std::string& key = node.first;
+    const Toml& value      = node.second;
     // 字段名 (键值) 应当为单字符
     if (key.size() != 1) {
         throw IllegalRecord(
-            std::format("illegal field {:s}", key),
+            "illegal field",
             value, "name of this field",
             "should be a single character"
         );
@@ -36,7 +40,7 @@ auto Data::validateLine(const Toml& table, const std::string_view key) -> void {
     // [键值]的取值应当在 CAP_SET 中
     if (not Utils::isLegalCap(std::toupper(key[0]))) {
         throw IllegalRecord(
-            std::format("illegal key code {:s}", key),
+            "illegal key code ",
             value, "in the name of this field",
             "should be a capital letter or one of "
             "the 4 symbols: ',', '.', ';' and '/'"

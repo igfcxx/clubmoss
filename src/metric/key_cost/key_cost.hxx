@@ -13,8 +13,11 @@ public:
     KeyCost() = delete;
 
     auto analyze(const Layout&) -> void;
-    auto measure(const Layout&) -> fz;
     auto check(const Layout&) -> bool;
+
+    auto measure1(const Layout&) -> fz;
+    auto measure2(const Layout&) -> fz;
+    auto measure3(const Layout&) -> fz;
 
     static auto loadCfg(const Toml& cfg) -> void;
 
