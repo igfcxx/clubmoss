@@ -9,17 +9,18 @@ class DisCost;
 
 namespace clubmoss::metric::dis_cost {
 
+using Node = std::pair<const std::string, const Toml&>;
+
 using Op = struct OrderedPair final {
     Cap src{0};
     Cap dst{0};
-    fz f{};
+    fz f{0.0};
 
     OrderedPair() = default;
 
-    OrderedPair(const std::string_view s, const fz freq)
-        : f(freq) {
-        src = static_cast<Cap>(std::toupper(s[0]));
-        dst = static_cast<Cap>(std::toupper(s[1]));
+    explicit OrderedPair(const Node& node): f(node.second.as_floating()) {
+        src = static_cast<Cap>(std::toupper(node.first[0]));
+        dst = static_cast<Cap>(std::toupper(node.first[1]));
     }
 };
 
@@ -33,12 +34,9 @@ public:
 
 protected:
     std::array<Op, 200> records_{};
-    std::array<std::array<Cap, 2>, 200> c1_;
-    std::array<std::array<Cap, 200>, 2> c2_;
-    std::array<fz, 200> freq_{};
 
 private:
-    static auto validateLine(const std::pair<const std::string, const Toml&>& node) -> void;
+    static auto validateLine(const Node& node) -> void;
 
     static constexpr char WHAT[]{"Illegal pair frequency data: {:s}"};
     using IllegalRecord = IllegalToml<WHAT>;

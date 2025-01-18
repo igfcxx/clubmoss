@@ -3,18 +3,13 @@
 namespace clubmoss::metric::key_cost {
 
 Data::Data(const Toml& data) {
-    char_freq_.fill(0.0);
     for (const auto& [i, node] : data.as_table() | std::views::enumerate) {
         validateLine(node);
-        const auto c  = std::toupper(node.first[0]);
-        const auto f  = static_cast<fz>(node.second.as_floating());
-        records_[i]   = Char(c, f);
-        char_freq_[c] = f;
-        caps_[i]      = c;
-        freq_[i]      = f;
+        caps_[i] = std::toupper(node.first[0]);
+        freq_[i] = static_cast<fz>(node.second.as_floating());
     }
     // 所有按键的频率之和应该为 1.0
-    if (const fz sum = Utils::sum(char_freq_);
+    if (const fz sum = Utils::sum(freq_);
         std::abs(sum - 1.0) > 1e-3) {
         throw IllegalRecord(
             std::format(

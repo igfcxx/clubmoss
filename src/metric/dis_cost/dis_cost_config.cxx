@@ -56,7 +56,6 @@ auto Config::loadHandLimit(const Toml& cfg) -> void {
 }
 
 auto Config::clacDistance() -> void {
-    dis_.fill(0.0);
     for (const Pos pos1 : POS_SET) {
         const fz x1 = x_[pos1];
         const fz y1 = y_[pos1];
@@ -68,7 +67,6 @@ auto Config::clacDistance() -> void {
             const fz dis = std::hypot(x1 - x2, y1 - y2);
 
             dis_[pos1 * KEY_CNT_POW2 + pos2] = dis;
-            dis_[pos2 * KEY_CNT_POW2 + pos1] = dis;
         }
     }
 }

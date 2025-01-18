@@ -100,6 +100,23 @@ BETTER_ENUM(
     RightRing   = 8,
     RightPinky  = 9
 )
+
+BETTER_ENUM(
+    PosRelation, uz,
+    SamePosition = 0,
+    SameFinger   = 1,
+    SameHand     = 2,
+    None         = 3
+)
+
+BETTER_ENUM(
+    PainLevel, uz,
+    No       = 0,
+    Mild     = 1,
+    Moderate = 2,
+    Severe   = 3,
+    Extreme  = 4
+)
 // @formatter:on //
 
 class FatalError : public std::runtime_error {

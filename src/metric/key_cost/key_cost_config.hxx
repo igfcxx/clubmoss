@@ -29,11 +29,16 @@ protected:
     };
     fz max_hand_usage_imbalance_{0.025};
 
+    std::array<fz, PosRelation::_size()> similarity_score_{
+        1.0, 0.8, 0.3, 0.0
+    };
+
     Config() = default;
 
     auto loadHitEfforts(const Toml& cfg) -> void;
     auto loadFinLimits(const Toml& cfg) -> void;
     auto loadHandLimit(const Toml& cfg) -> void;
+    auto loadSimScore(const Toml& cfg) -> void;
 
 private:
     static constexpr char WHAT[]{"Illegal key-cost config: {:s}"};

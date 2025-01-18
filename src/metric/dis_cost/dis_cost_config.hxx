@@ -15,10 +15,11 @@ public:
 
     auto loadCfg(const Toml& cfg) -> void;
 
-    auto disBetween(Pos pos1, Pos pos2) const -> fz;
+    [[nodiscard]] auto disBetween(Pos pos1, Pos pos2) const -> fz;
 
 protected:
-    std::array<fz, KEY_CNT_POW2 * KEY_CNT_POW2> dis_;
+    std::array<fz, KEY_CNT_POW2 * KEY_CNT_POW2> dis_{0.0};
+
     std::array<uz, Finger::_size()> base_pos_{
         10, 11, 12, 13, 30, 30, 16, 17, 18, 19
     };

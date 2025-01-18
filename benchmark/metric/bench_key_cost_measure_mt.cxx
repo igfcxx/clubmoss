@@ -18,7 +18,7 @@ TEST_SUITE("Bench multi-threading metric::KeyCost::measure()") {
     using LytVec = std::vector<std::unique_ptr<Layout>>;
 
     static const std::string PATH = Utils::absPath("test/metric/key_cost/data.toml");
-    const Data EN_DATA(toml::parse(PATH));
+    const Data EN_DATA(toml::parse<toml::ordered_type_config>(PATH));
 
     KeyCost kc_metric(EN_DATA);
     layout::Manager manager;
@@ -31,67 +31,43 @@ TEST_SUITE("Bench multi-threading metric::KeyCost::measure()") {
         return layouts;
     }
 
-    auto baseline1(ankerl::nanobench::Bench& bench) -> void {
+    auto baseline(ankerl::nanobench::Bench& bench) -> void {
         const LytVec layouts = createLayouts(manager);
         bench.run(
-            "baseline1 (1)",
+            "baseline",
             [&]() -> void {
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    kc_metric.measure1(*layouts[i]);
+                    kc_metric.measure(*layouts[i]);
                 }
             }
         );
     }
 
-    auto baseline2(ankerl::nanobench::Bench& bench) -> void {
+    auto benchOmpStatic(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
         const LytVec layouts = createLayouts(manager);
         bench.run(
-            "baseline2 (1)",
+            fmt::format("omp: static ({:d})", num_threads).c_str(),
             [&]() -> void {
+                #pragma omp parallel for schedule(static) shared(layouts) firstprivate(kc_metric) lastprivate(kc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    kc_metric.measure2(*layouts[i]);
+                    kc_metric.measure(*layouts[i]);
                 }
             }
         );
     }
 
-    auto baseline3(ankerl::nanobench::Bench& bench) -> void {
+    auto benchOmpGuided(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
         const LytVec layouts = createLayouts(manager);
         bench.run(
-            "baseline3 (1)",
+            fmt::format("omp: guided ({:d})", num_threads).c_str(),
             [&]() -> void {
+                #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(kc_metric) lastprivate(kc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    kc_metric.measure3(*layouts[i]);
+                    kc_metric.measure(*layouts[i]);
                 }
             }
         );
     }
-
-    // auto benchOmpStatic(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
-    //     const LytVec layouts = createLayouts(manager);
-    //     bench.run(
-    //         fmt::format("omp: static ({:d})", num_threads).c_str(),
-    //         [&]() -> void {
-    //             #pragma omp parallel for schedule(static) shared(layouts) firstprivate(kc_metric) lastprivate(kc_metric) default (none)
-    //             for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-    //                 kc_metric.measure(*layouts[i]);
-    //             }
-    //         }
-    //     );
-    // }
-
-    // auto benchOmpGuided(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
-    //     const LytVec layouts = createLayouts(manager);
-    //     bench.run(
-    //         fmt::format("omp: guided ({:d})", num_threads).c_str(),
-    //         [&]() -> void {
-    //             #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(kc_metric) lastprivate(kc_metric) default (none)
-    //             for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-    //                 kc_metric.measure(*layouts[i]);
-    //             }
-    //         }
-    //     );
-    // }
 
     TEST_CASE("bench metric::KeyCost::measure()") {
         REQUIRE_LE(MAX_THREADS, std::thread::hardware_concurrency());
@@ -106,15 +82,12 @@ TEST_SUITE("Bench multi-threading metric::KeyCost::measure()") {
          .minEpochIterations(100);
         b.performanceCounters(true);
 
-        baseline1(b);
-        baseline2(b);
-        baseline3(b);
-
-        // for (uz i = 2; i <= MAX_THREADS; ++i) {
-        //     omp_set_num_threads(static_cast<int>(i));
-        //     benchOmpStatic(b, i);
-        //     benchOmpGuided(b, i);
-        // }
+        baseline(b);
+        for (uz i = 2; i <= MAX_THREADS; ++i) {
+            omp_set_num_threads(static_cast<int>(i));
+            // benchOmpStatic(b, i);
+            benchOmpGuided(b, i);
+        }
     }
 }
 

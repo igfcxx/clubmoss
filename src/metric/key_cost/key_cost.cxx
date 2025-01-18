@@ -16,8 +16,9 @@ auto KeyCost::analyze(const Layout& layout) -> void {
     row_usage_.fill(0.0);
     col_usage_.fill(0.0);
     finger_usage_.fill(0.0);
-    for (const Cap cap : CAP_SET) {
-        const fz freq = data_.char_freq_[cap];
+    for (uz i = 0; i < KEY_COUNT; ++i) {
+        const fz freq = data_.freq_[i];
+        const Cap cap = data_.caps_[i];
         const Pos pos = layout.getPos(cap);
         const Col col = Utils::colOf(pos);
         const Row row = Utils::rowOf(pos);
@@ -26,6 +27,7 @@ auto KeyCost::analyze(const Layout& layout) -> void {
         row_usage_[row] += freq;
         heat_map_[pos] += freq;
     }
+    calcSimilarity(layout);
     calcFingerUsage();
     collectStats();
 }
@@ -35,29 +37,7 @@ auto KeyCost::analyze(const Layout& layout) -> void {
  * @param layout 输入的布局
  * @return 击键成本
  */
-auto KeyCost::measure1(const Layout& layout) -> fz {
-    cost_ = 0.0;
-    for (const Cap cap : CAP_SET) {
-        const fz freq = data_.char_freq_[cap];
-        const Pos pos = layout.getPos(cap);
-        cost_ += cfg_.costs_[pos] * freq;
-    }
-    return cost_;
-}
-
-auto KeyCost::measure2(const Layout& layout) -> fz {
-    cost_ = 0.0;
-    for (uz i = 0; i < KEY_COUNT; i += 2) {
-        const auto ch1 = data_.records_[i];
-        const auto ch2 = data_.records_[i + 1];
-        const Pos pos1 = layout.getPos(ch1.cap);
-        const Pos pos2 = layout.getPos(ch2.cap);
-        cost_ += cfg_.costs_[pos1] * ch1.freq + cfg_.costs_[pos2] * ch2.freq;
-    }
-    return cost_;
-}
-
-auto KeyCost::measure3(const Layout& layout) -> fz {
+auto KeyCost::measure(const Layout& layout) -> fz {
     cost_ = 0.0;
     for (uz i = 0; i < KEY_COUNT; i += 2) {
         const fz freq1 = data_.freq_[i];
@@ -76,8 +56,9 @@ auto KeyCost::measure3(const Layout& layout) -> fz {
  */
 auto KeyCost::check(const Layout& layout) -> bool {
     col_usage_.fill(0.0);
-    for (const Cap cap : CAP_SET) {
-        const fz freq = data_.char_freq_[cap];
+    for (uz i = 0; i < KEY_COUNT; ++i) {
+        const fz freq = data_.freq_[i];
+        const Cap cap = data_.caps_[i];
         const Pos pos = layout.getPos(cap);
         const Col col = Utils::colOf(pos);
         col_usage_[col] += freq;
@@ -136,5 +117,41 @@ auto KeyCost::collectStats() noexcept -> void {
         }
     ));
 }
+
+auto KeyCost::calcSimilarity(const Layout& layout) noexcept -> void {
+    auto is_same_finger = [](const Col col1, const Col col2) -> bool {
+        if (col1 == col2) {
+            return true;
+        } else if (col1 == 3 or col1 == 4) {
+            return col2 == 3 or col2 == 4;
+        } else if (col1 == 5 or col1 == 6) {
+            return col2 == 5 or col2 == 6;
+        }
+        return false;
+    };
+
+    auto is_same_hand = [](const Col col1, const Col col2) -> bool {
+        return (col1 <= 4 and col2 <= 4) or (col1 >= 5 and col2 >= 5);
+    };
+
+    similarity_ = 0.0;
+
+    static auto ref = layout::baselines::QWERTY;
+    for (const auto& [i, cap] : CAP_SET | std::views::enumerate) {
+        const fz freq     = data_.freq_[i];
+        const Pos ref_pos = ref.getPos(cap);
+        const Pos cur_pos = layout.getPos(cap);
+        const Col ref_col = Utils::colOf(ref_pos);
+        const Col cur_col = Utils::colOf(cur_pos);
+        if (cur_pos == ref_pos) {
+            similarity_ += cfg_.similarity_score_[PosRelation::SamePosition] * freq;
+        } else if (is_same_finger(ref_col, cur_col)) {
+            similarity_ += cfg_.similarity_score_[PosRelation::SameFinger] * freq;
+        } else if (is_same_hand(ref_col, cur_col)) {
+            similarity_ += cfg_.similarity_score_[PosRelation::SameHand] * freq;
+        }
+    }
+}
+
 
 }

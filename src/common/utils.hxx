@@ -1,6 +1,7 @@
 #ifndef CLUBMOSS_UTILS_HXX
 #define CLUBMOSS_UTILS_HXX
 
+#include <map>
 #include <array>
 #include <vector>
 #include <bitset>
@@ -17,7 +18,7 @@
 
 namespace clubmoss {
 
-using Toml = toml::value;
+using Toml = toml::basic_value<toml::ordered_type_config>;
 
 static constexpr uz ROW_COUNT = 3;  // 行数
 static constexpr uz COL_COUNT = 10; // 列数

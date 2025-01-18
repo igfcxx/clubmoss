@@ -25,10 +25,6 @@ public:
     explicit Data(const Toml& data);
 
 protected:
-    std::array<fz, MAX_KEY_CODE> char_freq_{}; // 按键的频率
-
-    std::array<Char, MAX_KEY_CODE> records_{};
-
     std::array<Cap, KEY_COUNT> caps_{};
     std::array<fz, KEY_COUNT> freq_{};
 

@@ -74,4 +74,25 @@ auto Config::loadHandLimit(const Toml& cfg) -> void {
     }
 }
 
+auto Config::loadSimScore(const Toml& cfg) -> void {
+    const Toml& node = cfg.at("similarity_score");
+    if (node.size() != PosRelation::_size()) {
+        throw IllegalCfg(
+            "illegal size of `similarity_score`",
+            node, std::format("should be {}", PosRelation::_size())
+        );
+    }
+    for (const auto& [rel,elem] : node.as_array() | std::views::enumerate) {
+        if (const double score = elem.as_floating();
+            score < 0.0 or score > 1.0) {
+            throw IllegalCfg(
+                "illegal similarity score",
+                elem, "should be in range [0, 1]"
+            );
+        } else {
+            similarity_score_[rel] = static_cast<fz>(score);
+        }
+    }
+}
+
 }

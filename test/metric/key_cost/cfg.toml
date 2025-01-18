@@ -8,3 +8,6 @@ max_finger_usage = [
     0.12, 0.16, 0.20, 0.22, inf, inf, 0.22, 0.20, 0.16, 0.12
 ]
 max_hand_usage_imbalance = 0.025
+similarity_score = [
+    1.0, 0.8, 0.3
+]

@@ -17,7 +17,7 @@ TEST_SUITE("Test metric::key_cost::Data") {
         SUBCASE("should pass") {
             static const PathVec test_files = findTestFiles("should_pass");
             for (const fs::path& file : test_files) {
-                const Toml& t = toml::parse(file);
+                const Toml& t = toml::parse<toml::ordered_type_config>(file);
                 REQUIRE_NOTHROW((Data(t)));
             }
         }
@@ -26,7 +26,7 @@ TEST_SUITE("Test metric::key_cost::Data") {
             printTitle("Show metric::key_cost::Config::loadCfg(Toml) error messages:");
             static const PathVec test_files = findTestFiles("should_fail");
             for (const fs::path& file : test_files) {
-                const Toml& t = toml::parse(file);
+                const Toml& t = toml::parse<toml::ordered_type_config>(file);
                 check([&] { (Data(t)); });
             }
         }
