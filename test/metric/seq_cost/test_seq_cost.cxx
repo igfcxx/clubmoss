@@ -31,11 +31,11 @@ TEST_SUITE("Test metric::SeqCost") {
         CHECK(cost_1 > cost_2);
     }
 
-    // TEST_CASE("test metric::SeqCost::check()") {
-    //     CHECK_FALSE(sc_metric.check(layout::baselines::QWERTY));
-    //     CHECK_FALSE(sc_metric.check(layout::baselines::DVORAK));
-    //     CHECK(sc_metric.check(layout::baselines::NORMAN));
-    // }
+    TEST_CASE("test metric::SeqCost::check()") {
+        CHECK_FALSE(sc_metric.check(layout::baselines::QWERTY));
+        CHECK(sc_metric.check(layout::baselines::DVORAK));
+        CHECK(sc_metric.check(layout::baselines::NORMAN));
+    }
 
     TEST_CASE("show metric::SeqCost scores") {
 

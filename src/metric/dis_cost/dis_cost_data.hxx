@@ -18,9 +18,16 @@ using Op = struct OrderedPair final {
 
     OrderedPair() = default;
 
-    explicit OrderedPair(const Node& node): f(node.second.as_floating()) {
+    explicit OrderedPair(const Node& node)
+        : f(node.second.as_floating()) {
         src = static_cast<Cap>(std::toupper(node.first[0]));
         dst = static_cast<Cap>(std::toupper(node.first[1]));
+    }
+
+    auto operator<=>(const OrderedPair& other) const noexcept -> std::weak_ordering {
+        if (this->f > other.f) { return std::weak_ordering::greater; }
+        if (this->f < other.f) { return std::weak_ordering::less; }
+        return std::weak_ordering::equivalent;
     }
 };
 
@@ -30,16 +37,16 @@ public:
 
     explicit Data(const Toml& data);
 
-    uz SIZE{200};
+    static constexpr uz MAX_RECORDS = 250;
 
 protected:
-    std::array<Op, 200> records_{};
+    std::vector<Op> records_{};
 
 private:
-    static auto validateLine(const Node& node) -> void;
+    static auto validateRecord(std::string_view pair, const Toml& data, uz line) -> void;
 
-    static constexpr char WHAT[]{"Illegal pair frequency data: {:s}"};
-    using IllegalRecord = IllegalToml<WHAT>;
+    static constexpr char WHAT[]{"Illegal pair-frequency data: {:s}"};
+    using IllegalData = IllegalToml<WHAT>;
 
     friend class clubmoss::metric::DisCost;
 };

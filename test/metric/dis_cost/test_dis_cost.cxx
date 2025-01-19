@@ -11,13 +11,13 @@ TEST_SUITE("Test metric::DisCost") {
     static const std::string DATA_PATH = Utils::absPath("test/metric/dis_cost/data.toml");
     static const std::string CFG_PATH  = Utils::absPath("test/metric/dis_cost/cfg.toml");
 
-    const Data EN_DATA(toml::parse<toml::ordered_type_config>(DATA_PATH));
-
     TEST_CASE("test metric::DisCost(Toml) construction") {
         DisCost::loadCfg(toml::parse(CFG_PATH).at("dis_cost"));
-        REQUIRE_NOTHROW((DisCost(EN_DATA)));
+        const Data data(toml::parse<toml::ordered_type_config>(DATA_PATH));
+        REQUIRE_NOTHROW((DisCost(data)));
     }
 
+    const Data EN_DATA(toml::parse<toml::ordered_type_config>(DATA_PATH));
     DisCost dc_metric(EN_DATA);
     layout::Manager manager;
 
@@ -27,11 +27,11 @@ TEST_SUITE("Test metric::DisCost") {
         CHECK(cost_1 > cost_2);
     }
 
-    // TEST_CASE("test metric::DisCost::check()") {
-    //     CHECK_FALSE(dc_metric.check(layout::baselines::QWERTY));
-    //     CHECK_FALSE(dc_metric.check(layout::baselines::DVORAK));
-    //     CHECK(dc_metric.check(layout::baselines::NORMAN));
-    // }
+    TEST_CASE("test metric::DisCost::check()") {
+        CHECK_FALSE(dc_metric.check(layout::baselines::QWERTY));
+        CHECK_FALSE(dc_metric.check(layout::baselines::DVORAK));
+        CHECK(dc_metric.check(layout::baselines::NORMAN));
+    }
 
     TEST_CASE("show metric::DisCost scores") {
 
@@ -55,10 +55,6 @@ TEST_SUITE("Test metric::DisCost") {
             }
             blankLine();
         }
-    }
-
-    TEST_CASE("test metric::DisCost") {
-        dc_metric.measure(layout::baselines::QWERTY);
     }
 }
 

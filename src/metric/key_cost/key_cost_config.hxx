@@ -23,15 +23,16 @@ protected:
         8.0, 8.0, 6.0, 4.0, 9.0, 6.0, 4.0, 6.0, 8.0, 8.0
     };
 
+    // 键位相似度分数
+    std::array<fz, PosRelation::_size()> similarity_score_{
+        1.0, 0.8, 0.3, 0.0
+    };
+
     // 手指使用率平衡性限制
     std::array<fz, Finger::_size()> max_finger_usage_{
         0.12, 0.16, 0.20, 0.22, 1.05, 1.05, 0.22, 0.20, 0.16, 0.12
     };
     fz max_hand_usage_imbalance_{0.025};
-
-    std::array<fz, PosRelation::_size()> similarity_score_{
-        1.0, 0.8, 0.3, 0.0
-    };
 
     Config() = default;
 

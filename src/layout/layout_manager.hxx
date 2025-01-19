@@ -22,16 +22,16 @@ public:
 
 protected:
     std::vector<Area> mutable_areas_; // 可变区域列表
-    std::vector<Key> pinned_keys_;    // 固定按键列表
-    std::vector<uz> area_ids_;        // 区域编号列表
+    std::vector<Key> pinned_keys_; // 固定按键列表
+    std::vector<uz> area_ids_; // 区域编号列表
 
     Prng prng_{}; // 随机数生成器
 
-    const bool need_to_select_area_; // 是否存在多个[可变区域]需要进行抽取
-    const bool have_pinned_key_;     // 是否存在[固定按键]
+    bool need_to_select_area_; // 是否存在多个[可变区域]需要进行抽取
+    bool have_pinned_key_; // 是否存在[固定按键]
 
-    const uz ths_; // 状态更新的频率阈值
-    uz idx_;       // 当前选取的区域ID的索引
+    uz ths_; // 状态更新的频率阈值
+    uz idx_; // 当前选取的区域ID的索引
 
     auto randomlySelectAnArea() noexcept -> Area&;
 

@@ -45,9 +45,9 @@ Area& Area::operator=(const Area& rhs) {
     if (this == &rhs) { return *this; }
     cap_list_ = rhs.cap_list_;
     pos_list_ = rhs.pos_list_;
-    size_     = rhs.size_;
-    ths_      = rhs.ths_;
-    idx_      = ths_ + 1;
+    size_ = rhs.size_;
+    ths_ = rhs.ths_;
+    idx_ = ths_ + 1;
     return *this;
 }
 

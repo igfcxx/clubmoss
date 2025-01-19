@@ -4,11 +4,14 @@
 #include "dis_cost_data.hxx"
 
 namespace clubmoss::metric::dis_cost {
+
+class Data;
+
 class Config final {
 public:
-    Config(Config&&)                 = delete;
-    Config(const Config&)            = delete;
-    Config& operator=(Config&&)      = delete;
+    Config(Config&&) = delete;
+    Config(const Config&) = delete;
+    Config& operator=(Config&&) = delete;
     Config& operator=(const Config&) = delete;
 
     static auto getInstance() -> Config&;
@@ -18,9 +21,11 @@ public:
     [[nodiscard]] auto disBetween(Pos pos1, Pos pos2) const -> fz;
 
 protected:
-    std::array<fz, KEY_CNT_POW2 * KEY_CNT_POW2> dis_{0.0};
+    // 不同位置之间的距离
+    std::array<fz, KEY_CNT_POW2 * KEY_CNT_POW2> distance_map_{0.0};
 
-    std::array<uz, Finger::_size()> base_pos_{
+    // 手指的初始位置
+    std::array<uz, Finger::_size()> base_positions_{
         10, 11, 12, 13, 30, 30, 16, 17, 18, 19
     };
 
@@ -37,7 +42,7 @@ protected:
     auto clacDistance() -> void;
 
 private:
-    std::array<fz, KEY_COUNT> x_ {
+    std::array<fz, KEY_COUNT> x_{
         0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00,
         0.25, 1.25, 2.25, 3.25, 4.25, 5.25, 6.25, 7.25, 8.25, 9.25,
         0.75, 1.75, 2.75, 3.75, 4.75, 5.75, 6.75, 7.75, 8.75, 9.75,
@@ -51,6 +56,7 @@ private:
     static constexpr char WHAT[]{"Illegal dis-cost config: {:s}"};
     using IllegalCfg = IllegalToml<WHAT>;
 
+    friend class clubmoss::metric::dis_cost::Data;
     friend class clubmoss::metric::DisCost;
 };
 

@@ -31,8 +31,8 @@ protected:
 private:
     static auto validateLine(const std::pair<const std::string, const Toml&>& node) -> void;
 
-    static constexpr char WHAT[]{"Illegal char frequency data: {:s}"};
-    using IllegalRecord = IllegalToml<WHAT>;
+    static constexpr char WHAT[]{"Illegal char-frequency data: {:s}"};
+    using IllegalData = IllegalToml<WHAT>;
 
     friend class clubmoss::metric::KeyCost;
 };

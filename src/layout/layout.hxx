@@ -66,11 +66,12 @@ namespace layout::baselines {
         const std::string name;
     };
 
+    // @formatter:off //
     // 部分布局使用'/'替代了不在键值集中的字符
     static const auto QWERTY   = Baseline("QWERTYUIOPASDFGHJKL;ZXCVBNM,./", "QWERTY");
     static const auto DVORAK   = Baseline(";,.PYFGCRLAOEUIDHTNS/QJKXBMWVZ", "Dvorak");
     static const auto COLEMAK  = Baseline("QWFPGJLUY;ARSTDHNEIOZXCVBKM,./", "Colemak");
-    static const auto MINIMAK  = Baseline("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./", "Miniak"); // 12-keys 版本
+    static const auto MINIMAK  = Baseline("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./", "Miniak");   // 12-keys 版本
     static const auto KLAUSLER = Baseline("K,UYPWLMFCOAEIDRNTHSQ./;ZXVGBJ", "Klausler");
     static const auto CAPEWELL = Baseline(".YWDFJPLUQAERSGBTNIOXZCV;KMH,/", "Capewell"); // close-keys 版本
     static const auto QGMLWY   = Baseline("QGMLWYFUB;DSTNRIAEOHZXCVJKP,./", "QGMLWY");   // 源于 Carpalx 项目
@@ -80,6 +81,7 @@ namespace layout::baselines {
     static const auto NORMAN   = Baseline("QWDFKJURL;ASETGYNIOHZXCVBPM,./", "Norman");
     static const auto CHIN     = Baseline(",TSZBPFRD.OEAGYLNIHUXQJCVKMW;/", "Chin");
     static const auto GOAT     = Baseline(",SEZBPFRD.GOATYLNIHUXQJCVKMW;/", "Goat");
+    // @formatter:on //
 
     static const std::vector ALL{
         QWERTY, DVORAK, COLEMAK, MINIMAK, KLAUSLER, CAPEWELL,

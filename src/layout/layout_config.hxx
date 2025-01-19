@@ -8,9 +8,9 @@ namespace clubmoss::layout {
 // 布局设置 //
 class Config final {
 public:
-    Config(Config&&)                 = delete;
-    Config(const Config&)            = delete;
-    Config& operator=(Config&&)      = delete;
+    Config(Config&&) = delete;
+    Config(const Config&) = delete;
+    Config& operator=(Config&&) = delete;
     Config& operator=(const Config&) = delete;
 
     static auto getInstance() -> Config&;
@@ -19,12 +19,12 @@ public:
 
 protected:
     std::vector<Area> mutable_areas_{}; // 可变区域列表
-    std::vector<Key> pinned_keys_{};    // 固定按键列表
-    std::vector<uz> area_ids_{};        // 区域编号列表
+    std::vector<Key> pinned_keys_{}; // 固定按键列表
+    std::vector<uz> area_ids_{}; // 区域编号列表
 
     uz num_mutable_keys_{}; // 可变按键数量
-    uz num_pinned_keys_{};  // 固定按键数量
-    uz num_areas_{};        // 可变区域数量
+    uz num_pinned_keys_{}; // 固定按键数量
+    uz num_areas_{}; // 可变区域数量
 
     Config();
 

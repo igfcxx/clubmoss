@@ -25,8 +25,8 @@
 
 namespace clubmoss {
 using u8 = uint8_t; // 最小无符号整型
-using uz = size_t;  // 原生无符号整型
-using fz = double;  // 默认浮点型
+using uz = size_t; // 原生无符号整型
+using fz = double; // 默认浮点型
 
 using Cap = u8; // 键值(ASCII), 所有大写字母 外加 ,.;/ 四个符号
 using Pos = u8; // 键位(编号), ∈ [0, 29]

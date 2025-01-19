@@ -16,7 +16,8 @@ Layout::Layout() = default;
  *            从上到下, 行优先. 例如 "QWERTYUIOPASDFGHJKL;ZXCVBNM,./".
  **/
 Layout::Layout(const std::string_view seq) {
-    validateSeq(seq); loadFromSeq(seq);
+    validateSeq(seq);
+    loadFromSeq(seq);
 }
 
 auto Layout::validateSeq(const std::string_view seq) -> void {

@@ -8,7 +8,7 @@ auto Config::getInstance() -> Config& {
 }
 
 auto Config::disBetween(const Pos pos1, const Pos pos2) const -> fz {
-    return dis_[pos1 * KEY_CNT_POW2 + pos2];
+    return distance_map_[pos1 * KEY_CNT_POW2 + pos2];
 }
 
 auto Config::loadCfg(const Toml& cfg) -> void {
@@ -48,7 +48,7 @@ auto Config::loadHandLimit(const Toml& cfg) -> void {
         max_hand_usage_imbalance < 0.0 or max_hand_usage_imbalance > 0.15) {
         throw IllegalCfg(
             "illegal max finger usage",
-            node, "should be in range (0, 0.1]"
+            node, "should be in range (0, 0.15]"
         );
     } else {
         max_hand_usage_imbalance_ = static_cast<fz>(max_hand_usage_imbalance);
@@ -57,16 +57,11 @@ auto Config::loadHandLimit(const Toml& cfg) -> void {
 
 auto Config::clacDistance() -> void {
     for (const Pos pos1 : POS_SET) {
-        const fz x1 = x_[pos1];
-        const fz y1 = y_[pos1];
-
         for (const Pos pos2 : POS_SET) {
-            const fz x2 = x_[pos2];
-            const fz y2 = y_[pos2];
-
+            const fz x1 = x_[pos1], y1 = y_[pos1];
+            const fz x2 = x_[pos2], y2 = y_[pos2];
             const fz dis = std::hypot(x1 - x2, y1 - y2);
-
-            dis_[pos1 * KEY_CNT_POW2 + pos2] = dis;
+            distance_map_[pos1 * KEY_CNT_POW2 + pos2] = dis;
         }
     }
 }

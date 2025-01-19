@@ -18,10 +18,17 @@ struct Ngram final {
 
     Ngram() = default;
 
-    explicit Ngram(const Node& node) : f(node.second.as_floating()) {
+    explicit Ngram(const Node& node)
+        : f(node.second.as_floating()) {
         for (const auto& [c, cap] : std::views::zip(node.first, caps)) {
             cap = static_cast<Cap>(std::toupper(c));
         }
+    }
+
+    auto operator<=>(const Ngram& other) const noexcept -> std::weak_ordering {
+        if (this->f > other.f) { return std::weak_ordering::greater; }
+        if (this->f < other.f) { return std::weak_ordering::less; }
+        return std::weak_ordering::equivalent;
     }
 };
 
@@ -34,17 +41,17 @@ public:
 
     Data(const Toml& bigram_data, const Toml& trigram_data);
 
-    uz SIZE{100};
+    static constexpr uz MAX_RECORDS = 100;
 
 protected:
-    std::array<Ngram<3>, 100> trigram_records_{};
-    std::array<Ngram<2>, 100> bigram_records_{};
+    std::vector<Ngram<2>> bigram_records_{};
+    std::vector<Ngram<3>> trigram_records_{};
 
 private:
-    static auto validateRecord(const Node& node, uz n) -> void;
+    static auto validateRecord(std::string_view ngram, uz n, const Toml& data, uz line) -> void;
 
-    static constexpr char WHAT[]{"Illegal n-gram frequency data: {:s}"};
-    using IllegalRecord = IllegalToml<WHAT>;
+    static constexpr char WHAT[]{"Illegal n-gram-frequency data: {:s}"};
+    using IllegalData = IllegalToml<WHAT>;
 
     friend class clubmoss::metric::SeqCost;
 };

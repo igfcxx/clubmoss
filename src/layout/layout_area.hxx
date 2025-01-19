@@ -25,8 +25,8 @@ protected:
     std::vector<Pos> pos_list_{}; // 键位列表, 随机打乱
 
     uz size_; // 可变区域的大小
-    uz ths_;  // 状态更新的频率阈值
-    uz idx_;  // 当前选取的键位的索引
+    uz ths_; // 状态更新的频率阈值
+    uz idx_; // 当前选取的键位的索引
 
 private:
     explicit Area(uz size);

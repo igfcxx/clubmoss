@@ -76,12 +76,14 @@ auto Config::loadHandLimit(const Toml& cfg) -> void {
 
 auto Config::loadSimScore(const Toml& cfg) -> void {
     const Toml& node = cfg.at("similarity_score");
+    // [键位相似度分数]数组的长度必须等于位置关系的数量
     if (node.size() != PosRelation::_size()) {
         throw IllegalCfg(
             "illegal size of `similarity_score`",
             node, std::format("should be {}", PosRelation::_size())
         );
     }
+    // [键位相似度分数]数组的元素必须是浮点数，且在 [0, 1] 之间
     for (const auto& [rel,elem] : node.as_array() | std::views::enumerate) {
         if (const double score = elem.as_floating();
             score < 0.0 or score > 1.0) {

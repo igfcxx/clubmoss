@@ -69,12 +69,13 @@ auto KeyCost::check(const Layout& layout) -> bool {
 }
 
 auto KeyCost::calcFingerUsage() noexcept -> void {
+    // @formatter:off //
     finger_usage_ = col_usage_;
-    // 根据手指使用率与列使用率的对应关系调整元素
     finger_usage_[Finger::LeftThumb]  = 0.0;
+    finger_usage_[Finger::RightThumb] = 0.0;
     finger_usage_[Finger::LeftIndex]  = col_usage_[3] + col_usage_[4];
     finger_usage_[Finger::RightIndex] = col_usage_[5] + col_usage_[6];
-    finger_usage_[Finger::RightThumb] = 0.0;
+    // @formatter:on //
 }
 
 auto KeyCost::validateUsage() noexcept -> void {
@@ -87,14 +88,17 @@ auto KeyCost::validateUsage() noexcept -> void {
     }
     // 检查左右手使用是否均衡
     fz left_hand_usage = 0.0;
-    for (uz i = 0; i < 5; ++i) { left_hand_usage += col_usage_[i]; }
+    for (uz i = 0; i < 5; ++i) { left_hand_usage += finger_usage_[i]; }
     valid_ = std::abs(left_hand_usage - 0.5) <= cfg_.max_hand_usage_imbalance_;
 }
 
 auto KeyCost::collectStats() noexcept -> void {
+    valid_ = true;
+
     // 检查并记录每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
         is_finger_overused_[fin] = finger_usage_[fin] > cfg_.max_finger_usage_[fin];
+        if (is_finger_overused_[fin]) { valid_ = false; }
     }
 
     // 记录左手使用率
@@ -107,15 +111,11 @@ auto KeyCost::collectStats() noexcept -> void {
     right_hand_usage_ = 1.0 - left_hand_usage_;
 
     // 检查并记录左右手使用是否均衡
-    const fz deviation  = std::abs(left_hand_usage_ - 0.5);
+    const fz deviation = std::abs(left_hand_usage_ - 0.5);
     is_hand_unbalanced_ = deviation > cfg_.max_hand_usage_imbalance_;
 
     // 记录布局整体是否有效
-    valid_ = not(is_hand_unbalanced_ or std::ranges::any_of(
-        is_finger_overused_, [](const bool elem) -> bool {
-            return elem;
-        }
-    ));
+    valid_ = valid_ and not is_hand_unbalanced_;
 }
 
 auto KeyCost::calcSimilarity(const Layout& layout) noexcept -> void {
@@ -136,9 +136,9 @@ auto KeyCost::calcSimilarity(const Layout& layout) noexcept -> void {
 
     similarity_ = 0.0;
 
-    static auto ref = layout::baselines::QWERTY;
+    static layout::baselines::Baseline ref = layout::baselines::QWERTY;
     for (const auto& [i, cap] : CAP_SET | std::views::enumerate) {
-        const fz freq     = data_.freq_[i];
+        const fz freq = data_.freq_[i];
         const Pos ref_pos = ref.getPos(cap);
         const Pos cur_pos = layout.getPos(cap);
         const Col ref_col = Utils::colOf(ref_pos);
