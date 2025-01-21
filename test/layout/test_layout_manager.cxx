@@ -33,8 +33,8 @@ TEST_SUITE("Test layout::Manager") {
 
         SUBCASE("copy assignment") {
             Manager mgr1, mgr2 = mgr1;
-            const Layout lyt1  = mgr1.create();
-            const Layout lyt2  = mgr2.create();
+            const Layout lyt1 = mgr1.create();
+            const Layout lyt2 = mgr2.create();
             REQUIRE(mgr1.canManage(lyt2));
             REQUIRE(mgr2.canManage(lyt1));
             REQUIRE_NE(lyt1, lyt2);

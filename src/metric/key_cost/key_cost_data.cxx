@@ -3,8 +3,8 @@
 namespace clubmoss::metric::key_cost {
 
 Data::Data(const Toml& data) {
-    for (const auto& node : data.as_table()) { validateLine(node); }
     for (const auto& [i, node] : data.as_table() | std::views::enumerate) {
+        validateLine(node.first, data, i + 1);
         caps_[i] = static_cast<Cap>(std::toupper(node.first[0]));
         freq_[i] = static_cast<fz>(node.second.as_floating());
     }
@@ -19,30 +19,46 @@ Data::Data(const Toml& data) {
             )
         );
     }
+    // 应当包含所有按键, 不重不漏
+    auto all_caps = caps_;
+    std::ranges::sort(all_caps);
+    for (uz i = 0; i < KEY_COUNT - 1; ++i) {
+        if (all_caps[i] == all_caps[i + 1]) {
+            throw IllegalData(
+                std::format(
+                    "duplicate character '{:c}'\n --> {:s}\n",
+                    all_caps[i], data.location().file_name()
+                )
+            );
+        }
+    }
 }
 
-auto Data::validateLine(const std::pair<const std::string, const Toml&>& node) -> void {
-    const std::string& key = node.first;
-    const Toml& value = node.second;
+auto Data::validateLine(const std::string_view ch, const Toml& data, const uz line) -> void {
     // 字段名的长度应当为 1
-    if (key.size() != 1) {
+    if (ch.size() != 1) {
         throw IllegalData(
-            "illegal field",
-            value, "expect length = 1"
+            std::format(
+                "illegal field {:s}\n --> {:s}\n"
+                "line {:d}: expect string length = 2, got {:d}",
+                ch, data.location().file_name(), line, ch.size()
+            )
         );
     }
     // [键值]应当合法
-    if (const int cap = std::toupper(key[0]);
+    if (const int cap = std::toupper(ch[0]);
         not Utils::isLegalCap(cap)) {
         throw IllegalData(
-            "illegal key code",
-            value, "in the name of this field",
-            "should be a capital letter or one of "
-            "the 4 symbols: ',', '.', ';' and '/'"
+            std::format(
+                "illegal key code\n --> {:s}\n"
+                "line {:d}: illegal character '{:c}'",
+                data.location().file_name(), line, ch[0]
+            )
         );
     }
     // [频率]的取值应当在 (0, 0.15] 之间
     // 这是一个经验值, 可以根据实际情况调整
+    const Toml& value = data.at(ch.data());
     const double freq = value.as_floating();
     if (freq < 1e-5) {
         throw IllegalData(

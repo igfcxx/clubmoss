@@ -88,6 +88,19 @@ using Prng = SplitMix64;
 
 // @formatter:off //
 BETTER_ENUM(
+    Language, uz,
+    Chinese = 0,
+    English = 1
+)
+
+BETTER_ENUM(
+    MetricId, uz,
+    KeyCost = 0,
+    DisCost = 1,
+    SeqCost = 2
+)
+
+BETTER_ENUM(
     Finger, uz,
     LeftPinky   = 0,
     LeftRing    = 1,

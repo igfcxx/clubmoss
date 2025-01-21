@@ -8,7 +8,7 @@ namespace clubmoss::layout::test {
 TEST_SUITE("Test layout::Area") {
 
     static const Layout QWERTY = baselines::QWERTY;
-    static const auto CONFIG   = u8R"(
+    static const auto CONFIG = u8R"(
         cap_list = ["Q", "W", "E"]
         pos_list = [0, 1, 2]
     )"_toml;
@@ -26,7 +26,7 @@ TEST_SUITE("Test layout::Area") {
         // 其中有一种与 QWERTY 完全相同. 由于这些事件的发生概率(理论上)相等,
         // 因此 P(area.assign() == QWERTY) 应该为 1/6.
 
-        static constexpr uz TOLERANCE   = 20;
+        static constexpr uz TOLERANCE = 20;
         static constexpr uz EXPECTATION = 100;
         static constexpr uz TEST_EPOCHS = EXPECTATION * 6;
 

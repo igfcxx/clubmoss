@@ -5,7 +5,7 @@
 
 namespace clubmoss::metric {
 
-// 击键代价指标 //
+// 序列代价指标 //
 class SeqCost {
 public:
     explicit SeqCost(const seq_cost::Data& data);
@@ -28,9 +28,7 @@ protected:
     seq_cost::Data data_; // 待测数据
 
 private:
-    inline static seq_cost::Config cfg_; // 配置信息
-
-    // auto collectStats() noexcept -> void;
+    inline static seq_cost::Config& cfg_ = seq_cost::Config::getInstance();
 };
 
 }

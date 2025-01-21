@@ -81,4 +81,15 @@ auto Utils::rowOf(const Pos pos) noexcept -> Row {
     return pos / COL_COUNT;
 }
 
+auto Utils::toSnakeCase(const std::string_view pascal) -> std::string {
+    std::string str;
+    for (uz i = 0; i < pascal.length(); ++i) {
+        if (isupper(pascal[i]) && i > 0) {
+            str += '_'; //
+        }
+        str += static_cast<char>(tolower(pascal[i]));
+    }
+    return str;
+}
+
 }

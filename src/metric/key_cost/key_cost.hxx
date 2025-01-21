@@ -40,7 +40,7 @@ protected:
     auto calcFingerUsage() noexcept -> void;
 
 private:
-    inline static key_cost::Config cfg_; // 配置信息
+    inline static key_cost::Config& cfg_ = key_cost::Config::getInstance();
 
     auto calcSimilarity(const Layout&) noexcept -> void;
     auto validateUsage() noexcept -> void;

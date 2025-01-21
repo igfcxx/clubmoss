@@ -1,7 +1,7 @@
 #ifndef CLUBMOSS_SEQ_COST_DATA_HXX
 #define CLUBMOSS_SEQ_COST_DATA_HXX
 
-#include "../metric.hxx"
+#include "../../layout/layout.hxx"
 
 namespace clubmoss::metric {
 class SeqCost;

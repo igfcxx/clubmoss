@@ -3,11 +3,29 @@
 namespace clubmoss::metric::seq_cost {
 
 Data::Data(const Toml& bigram_data, const Toml& trigram_data) {
+    if (const uz records = bigram_data.size(); records < 50) {
+        throw IllegalData(
+            std::format(
+                "too few records\n --> {:s}\n"
+                "expect at least 50 records, got {:d}",
+                bigram_data.location().file_name(), records
+            )
+        );
+    }
     for (const auto& [i, node] : bigram_data.as_table()
          | std::views::take(MAX_RECORDS)
          | std::views::enumerate) {
         validateRecord(node.first, 2, bigram_data, i + 1);
         bigram_records_.emplace_back(node);
+    }
+    if (const uz records = trigram_data.size(); records < 50) {
+        throw IllegalData(
+            std::format(
+                "too few records\n --> {:s}\n"
+                "expect at least 50 records, got {:d}",
+                trigram_data.location().file_name(), records
+            )
+        );
     }
     for (const auto& [i, node] : trigram_data.as_table()
          | std::views::take(MAX_RECORDS)
@@ -27,9 +45,9 @@ auto Data::validateRecord(
     if (ngram.size() != n) {
         throw IllegalData(
             std::format(
-                "illegal field\n --> {:s}\n"
+                "illegal field {:s}\n --> {:s}\n"
                 "line {:d}: expect length = {:d}, got {:d}",
-                data.location().file_name(), line, n, ngram.size()
+                ngram, data.location().file_name(), line, n, ngram.size()
             )
         );
     }
@@ -40,15 +58,15 @@ auto Data::validateRecord(
             throw IllegalData(
                 std::format(
                     "illegal key code\n --> {:s}\n"
-                    "line {:d}: \'{:c}\' is not legal",
+                    "line {:d}: illegal character '{:c}'",
                     data.location().file_name(), line, c
                 )
             );
         }
     }
-    const Toml& value = data.at(ngram.data());
-    // [频率]的取值应当在 (1e-5, 0.05) 之间
+    // [频率]的取值应当在 (1e-5, 0.1) 之间
     // 这是一个经验值, 可以根据实际情况调整
+    const Toml& value = data.at(ngram.data());
     const double freq = value.as_floating();
     if (freq < 1e-5) {
         throw IllegalData(
@@ -56,10 +74,10 @@ auto Data::validateRecord(
             value, "should be greater than 1e-5"
         );
     }
-    if (freq > 0.05) {
+    if (freq > 0.1) {
         throw IllegalData(
             "abnormal frequency",
-            value, "should be less than 5%"
+            value, "should be less than 10%"
         );
     }
 }

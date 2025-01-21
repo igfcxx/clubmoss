@@ -5,7 +5,7 @@
 
 namespace clubmoss::metric {
 
-// 击键代价指标 //
+// 距离代价指标 //
 class DisCost {
 public:
     explicit DisCost(const dis_cost::Data& data);

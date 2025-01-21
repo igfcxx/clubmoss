@@ -9,7 +9,7 @@ namespace clubmoss::metric::key_cost::test {
 TEST_SUITE("Test metric::KeyCost") {
 
     static const std::string DATA_PATH = Utils::absPath("test/metric/key_cost/data.toml");
-    static const std::string CFG_PATH  = Utils::absPath("test/metric/key_cost/cfg.toml");
+    static const std::string CFG_PATH = Utils::absPath("test/metric/key_cost/cfg.toml");
 
     const Data EN_DATA(toml::parse<toml::ordered_type_config>(DATA_PATH));
 
@@ -40,7 +40,7 @@ TEST_SUITE("Test metric::KeyCost") {
             for (uz i = 1; i <= 5; i++) {
                 const Layout layout = manager.create();
                 const std::string s = layout.toCapSeq();
-                const fz cost       = kc_metric.measure(layout);
+                const fz cost = kc_metric.measure(layout);
                 fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, cost);
             }
             blankLine();
@@ -50,7 +50,7 @@ TEST_SUITE("Test metric::KeyCost") {
             printTitle("Show metric::KeyCost scores - baselines:");
             for (const auto& [i, layout] : layout::baselines::ALL | std::views::enumerate) {
                 const std::string s = layout.name;
-                const fz cost       = kc_metric.measure(layout);
+                const fz cost = kc_metric.measure(layout);
                 fmt::println(stderr, "{:0>2d}. {:10s} {:.3f}", i + 1, s, cost);
             }
             blankLine();

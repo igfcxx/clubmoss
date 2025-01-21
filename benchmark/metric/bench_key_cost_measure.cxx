@@ -79,7 +79,7 @@ TEST_SUITE("Bench multi-threading metric::KeyCost::measure()") {
          .unit("layout processed")
          .relative(true)
          .warmup(5)
-         .minEpochIterations(100);
+         .minEpochIterations(200);
         b.performanceCounters(true);
 
         baseline(b);

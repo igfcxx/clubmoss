@@ -1,7 +1,7 @@
 #ifndef CLUBMOSS_KEY_COST_DATA_HXX
 #define CLUBMOSS_KEY_COST_DATA_HXX
 
-#include "../metric.hxx"
+#include "../../layout/layout.hxx"
 
 namespace clubmoss::metric {
 class KeyCost;
@@ -29,7 +29,7 @@ protected:
     std::array<fz, KEY_COUNT> freq_{};
 
 private:
-    static auto validateLine(const std::pair<const std::string, const Toml&>& node) -> void;
+    static auto validateLine(std::string_view ch, const Toml& data, uz line) -> void;
 
     static constexpr char WHAT[]{"Illegal char-frequency data: {:s}"};
     using IllegalData = IllegalToml<WHAT>;

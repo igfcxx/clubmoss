@@ -9,7 +9,7 @@ namespace clubmoss::metric::dis_cost::test {
 TEST_SUITE("Test metric::DisCost") {
 
     static const std::string DATA_PATH = Utils::absPath("test/metric/dis_cost/data.toml");
-    static const std::string CFG_PATH  = Utils::absPath("test/metric/dis_cost/cfg.toml");
+    static const std::string CFG_PATH = Utils::absPath("test/metric/dis_cost/cfg.toml");
 
     TEST_CASE("test metric::DisCost(Toml) construction") {
         DisCost::loadCfg(toml::parse(CFG_PATH).at("dis_cost"));
@@ -40,7 +40,7 @@ TEST_SUITE("Test metric::DisCost") {
             for (uz i = 1; i <= 5; i++) {
                 const Layout layout = manager.create();
                 const std::string s = layout.toCapSeq();
-                const fz cost       = dc_metric.measure(layout);
+                const fz cost = dc_metric.measure(layout);
                 fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, cost);
             }
             blankLine();
@@ -50,7 +50,7 @@ TEST_SUITE("Test metric::DisCost") {
             printTitle("Show metric::DisCost scores - baselines:");
             for (const auto& [i, layout] : layout::baselines::ALL | std::views::enumerate) {
                 const std::string s = layout.name;
-                const fz cost       = dc_metric.measure(layout);
+                const fz cost = dc_metric.measure(layout);
                 fmt::println(stderr, "{:0>2d}. {:10s} {:.3f}", i + 1, s, cost);
             }
             blankLine();

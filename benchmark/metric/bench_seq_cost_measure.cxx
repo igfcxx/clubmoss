@@ -5,22 +5,27 @@
 #include <nanobench.h>
 #include <doctest/doctest.h>
 
-#include "../../src/metric/dis_cost/dis_cost.hxx"
+#include "../../src/metric/seq_cost/seq_cost.hxx"
 #include "../../src/layout/layout_manager.hxx"
 
 static constexpr size_t NUM_LAYOUTS = 1000;
 static constexpr size_t MAX_THREADS = 12;
 
-namespace clubmoss::metric::dis_cost::bench {
+namespace clubmoss::metric::seq_cost::bench {
 
-TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
+TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
 
     using LytVec = std::vector<std::unique_ptr<Layout>>;
 
-    static const std::string PATH = Utils::absPath("test/metric/dis_cost/data.toml");
-    const Data EN_DATA(toml::parse<toml::ordered_type_config>(PATH));
+    static const std::string PATH_1 = Utils::absPath("test/metric/seq_cost/2-gram.toml");
+    static const std::string PATH_2 = Utils::absPath("test/metric/seq_cost/3-gram.toml");
 
-    DisCost dc_metric(EN_DATA);
+    const Data EN_DATA(
+        toml::parse<toml::ordered_type_config>(PATH_1),
+        toml::parse<toml::ordered_type_config>(PATH_2)
+    );
+
+    SeqCost sc_metric(EN_DATA);
     layout::Manager manager;
 
     auto createLayouts(layout::Manager& manager) -> LytVec {
@@ -37,7 +42,7 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
             "baseline",
             [&]() -> void {
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    sc_metric.measure(*layouts[i]);
                 }
             }
         );
@@ -48,9 +53,9 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
         bench.run(
             fmt::format("omp: static ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(static) shared(layouts) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
+                #pragma omp parallel for schedule(static) shared(layouts) firstprivate(sc_metric) lastprivate(sc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    sc_metric.measure(*layouts[i]);
                 }
             }
         );
@@ -61,25 +66,25 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
         bench.run(
             fmt::format("omp: guided ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
+                #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(sc_metric) lastprivate(sc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    sc_metric.measure(*layouts[i]);
                 }
             }
         );
     }
 
-    TEST_CASE("bench metric::DisCost::measure()") {
+    TEST_CASE("bench metric::SeqCost::measure()") {
         REQUIRE_LE(MAX_THREADS, std::thread::hardware_concurrency());
         REQUIRE_GE(MAX_THREADS, 1);
 
         ankerl::nanobench::Bench b;
 
-        b.title("DisCost::measure()")
+        b.title("SeqCost::measure()")
          .unit("layout processed")
          .relative(true)
          .warmup(5)
-         .minEpochIterations(100);
+         .minEpochIterations(200);
         b.performanceCounters(true);
 
         baseline(b);
