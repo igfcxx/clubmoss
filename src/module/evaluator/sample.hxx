@@ -5,6 +5,8 @@
 
 namespace clubmoss {
 
+class Evaluator;
+
 class Sample : public Layout {
 public:
     explicit Sample(const Layout& layout);
@@ -12,9 +14,7 @@ public:
 
     auto update() -> void;
 
-    auto getLoss() const -> fz;
-    auto setCost(fz cost, uz index) -> void;
-    static auto enabled(uz index) -> bool;
+    [[nodiscard]] auto getLoss() const -> fz;
 
     static auto loadWeights(const Toml& cfg) -> void;
     static auto loadFactors(const Toml& cfg) -> void;
@@ -39,6 +39,8 @@ private:
 
     static constexpr char WHAT[]{"Illegal weight config: {:s}"};
     using IllegalCfg = IllegalToml<WHAT>;
+
+    friend class Evaluator;
 };
 
 }

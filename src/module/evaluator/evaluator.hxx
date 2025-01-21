@@ -12,10 +12,6 @@ class Evaluator {
 public:
     auto evaluate(Sample& sample) -> void;
 
-    auto measureKeyCost(Sample& sample) -> void;
-    auto measureDisCost(Sample& sample) -> void;
-    auto measureSeqCost(Sample& sample) -> void;
-
 private:
     inline static auto parse = [](const std::string_view sub_path) -> Toml {
         return toml::parse<toml::ordered_type_config>(Utils::absPath(sub_path));

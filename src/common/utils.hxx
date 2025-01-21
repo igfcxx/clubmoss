@@ -12,8 +12,6 @@
 #include <utility>
 #include <filesystem>
 
-#include <toml.hpp>
-
 #include "types.hxx"
 
 namespace clubmoss {

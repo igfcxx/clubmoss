@@ -30,10 +30,12 @@ TEST_SUITE("Test Evaluator") {
         SUBCASE("random layouts") {
             printTitle("Show Sample losses - random layouts:");
             for (uz i = 1; i <= 5; i++) {
-                Sample sample(std::move(manager.create()));
-                const std::string s = sample.toCapSeq();
+                Sample sample(manager.create());
                 evaluator.evaluate(sample);
-                fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, sample.getLoss());
+                fmt::println(
+                    stderr, "{:d}. {:s} - {:.3f}",
+                    i, sample.toString(), sample.getLoss()
+                );
             }
             blankLine();
         }
@@ -43,8 +45,10 @@ TEST_SUITE("Test Evaluator") {
             for (const auto& [i, layout] : layout::baselines::ALL | std::views::enumerate) {
                 Sample sample(layout);
                 evaluator.evaluate(sample);
-                const std::string s = layout.name;
-                fmt::println(stderr, "{:0>2d}. {:10s} {:.3f}", i + 1, s, sample.getLoss());
+                fmt::println(
+                    stderr, "{:0>2d}. {:10s} {:.3f}",
+                    i + 1, layout.name, sample.getLoss()
+                );
             }
             blankLine();
         }

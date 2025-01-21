@@ -39,7 +39,7 @@ TEST_SUITE("Test metric::KeyCost") {
             printTitle("Show metric::KeyCost scores - random layouts:");
             for (uz i = 1; i <= 5; i++) {
                 const Layout layout = manager.create();
-                const std::string s = layout.toCapSeq();
+                const std::string s = layout.toString();
                 const fz cost = kc_metric.measure(layout);
                 fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, cost);
             }

@@ -60,7 +60,7 @@ auto Layout::getPos(const Cap cap) const noexcept -> Pos {
     return key_map_[cap];
 }
 
-auto Layout::toCapSeq() const noexcept -> std::string {
+auto Layout::toString() const noexcept -> std::string {
     auto caps = key_map_ | std::views::take(KEY_COUNT);
     return {caps.begin(), caps.end()};
 }

@@ -22,6 +22,9 @@
 #include <random>
 
 #include <better-enums/enum.h>
+#include <toml.hpp>
+
+#include "prngs.hxx"
 
 namespace clubmoss {
 using u8 = uint8_t; // 最小无符号整型
@@ -43,48 +46,7 @@ struct Key final {
         : cap(cap), pos(pos) {}
 };
 
-class SplitMix64 final {
-public:
-    using result_type = uint64_t;
-
-    SplitMix64() : SplitMix64(42ull) {}
-
-    explicit SplitMix64(const uint64_t seed) {
-        this->seed(seed), warmup();
-    }
-
-    // @formatter:off //
-    auto operator()() -> result_type {
-        state_ += 0x9E3779B97F4A7C15ull; uint64_t z = state_;
-        z = (z ^ (z >> 30ull)) * 0xBF58476D1CE4E5B9ull;
-        z = (z ^ (z >> 27ull)) * 0x94D049BB133111EBull;
-        return z ^ (z >> 31ull);
-    }
-    // @formatter:on //
-
-    auto seed(const uint64_t seed) -> void {
-        this->state_ = seed;
-    }
-
-    auto warmup() -> void {
-        for (size_t i = 0; i < 5; ++i) {
-            operator()();
-        }
-    }
-
-    [[maybe_unused]] static constexpr auto min() -> result_type {
-        return std::numeric_limits<result_type>::min();
-    }
-
-    [[maybe_unused]] static constexpr auto max() -> result_type {
-        return std::numeric_limits<result_type>::max();
-    }
-
-private:
-    uint64_t state_{};
-};
-
-using Prng = SplitMix64;
+using Prng = prng::RomuTrio64;
 
 // @formatter:off //
 BETTER_ENUM(

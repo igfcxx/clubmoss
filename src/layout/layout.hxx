@@ -18,7 +18,7 @@ public:
     [[nodiscard]] auto getCap(Pos) const noexcept -> Cap;
     [[nodiscard]] auto getPos(Cap) const noexcept -> Pos;
 
-    [[nodiscard]] auto toCapSeq() const noexcept -> std::string;
+    [[nodiscard]] auto toString() const noexcept -> std::string;
     [[nodiscard]] auto isValid() const noexcept -> bool;
 
     auto operator<=>(const Layout& other) const noexcept -> std::strong_ordering;

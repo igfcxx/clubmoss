@@ -78,7 +78,7 @@ TEST_SUITE("Test layout::Manager") {
         printTitle("Show layout::Manager::create() examples:");
         for (uz i = 1; i <= 5; i++) {
             Layout layout = manager.create();
-            std::string s = layout.toCapSeq();
+            std::string s = layout.toString();
             fmt::println(stderr, "{:d}. {:s}", i, s);
         }
         blankLine();
@@ -141,7 +141,7 @@ TEST_SUITE("Test layout::Manager") {
                 "parent: {:s}\n"
                 "child:  {:s}\n"
                 "diff:   {:s}^{:s}^\n\n",
-                i + 1, parent.toCapSeq(), child.toCapSeq(),
+                i + 1, parent.toString(), child.toString(),
                 std::string(idx[0], ' '), std::string(idx[1] - idx[0] - 1, ' ')
             );
         }

@@ -25,15 +25,10 @@ auto Sample::getLoss() const -> fz {
     return loss_;
 }
 
-auto Sample::setCost(const fz cost, const uz index) -> void {
-    raw_costs_[index] = cost;
-}
-
-auto Sample::enabled(const uz index) -> bool {
-    return enabled_[index];
-}
-
 auto Sample::loadWeights(const Toml& cfg) -> void {
+    use_ols_ = cfg.at("use_ols").as_boolean();
+
+    weights_.fill(0.0);
     for (const Language lang : Language::_values()) {
         for (const MetricId metric : MetricId::_values()) {
             const std::string lang_name = Utils::toSnakeCase(lang._to_string());
@@ -45,8 +40,6 @@ auto Sample::loadWeights(const Toml& cfg) -> void {
             weights_[i] = w;
         }
     }
-
-    use_ols_ = cfg.at("use_ols").as_boolean();
 
     const fz total_weight = Utils::sum(weights_);
     for (fz& weight : weights_) {
