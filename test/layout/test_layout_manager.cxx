@@ -3,7 +3,7 @@
 #include "../../src/layout/layout_manager.hxx"
 #include "../test_utilities.hxx"
 
-namespace clubmoss::layout::tests {
+namespace clubmoss::layout::test {
 
 TEST_SUITE("Test layout::Manager") {
 
@@ -33,8 +33,8 @@ TEST_SUITE("Test layout::Manager") {
 
         SUBCASE("copy assignment") {
             Manager mgr1, mgr2 = mgr1;
-            const Layout lyt1  = mgr1.create();
-            const Layout lyt2  = mgr2.create();
+            const Layout lyt1 = mgr1.create();
+            const Layout lyt2 = mgr2.create();
             REQUIRE(mgr1.canManage(lyt2));
             REQUIRE(mgr2.canManage(lyt1));
             REQUIRE_NE(lyt1, lyt2);
@@ -78,7 +78,7 @@ TEST_SUITE("Test layout::Manager") {
         printTitle("Show layout::Manager::create() examples:");
         for (uz i = 1; i <= 5; i++) {
             Layout layout = manager.create();
-            std::string s = layout.toCapSeq();
+            std::string s = layout.toString();
             fmt::println(stderr, "{:d}. {:s}", i, s);
         }
         blankLine();
@@ -141,7 +141,7 @@ TEST_SUITE("Test layout::Manager") {
                 "parent: {:s}\n"
                 "child:  {:s}\n"
                 "diff:   {:s}^{:s}^\n\n",
-                i + 1, parent.toCapSeq(), child.toCapSeq(),
+                i + 1, parent.toString(), child.toString(),
                 std::string(idx[0], ' '), std::string(idx[1] - idx[0] - 1, ' ')
             );
         }

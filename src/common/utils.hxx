@@ -1,6 +1,7 @@
 #ifndef CLUBMOSS_UTILS_HXX
 #define CLUBMOSS_UTILS_HXX
 
+#include <map>
 #include <array>
 #include <vector>
 #include <bitset>
@@ -11,13 +12,11 @@
 #include <utility>
 #include <filesystem>
 
-#include <toml.hpp>
-
 #include "types.hxx"
 
 namespace clubmoss {
 
-using Toml = toml::value;
+using Toml = toml::basic_value<toml::ordered_type_config>;
 
 static constexpr uz ROW_COUNT = 3;  // 行数
 static constexpr uz COL_COUNT = 10; // 列数
@@ -67,9 +66,16 @@ public:
         return 0 <= row and row < ROW_COUNT;
     }
 
-    static auto posFromRowCol(Row, Col) noexcept -> Pos;
-    static auto colOfPos(Pos) noexcept -> Col;
-    static auto rowOfPos(Pos) noexcept -> Row;
+    static auto posOf(Row, Col) noexcept -> Pos;
+    static auto colOf(Pos) noexcept -> Col;
+    static auto rowOf(Pos) noexcept -> Row;
+
+    template <typename Container>
+    static auto sum(const Container& container) -> typename Container::value_type {
+        return std::accumulate(container.begin(), container.end(), static_cast<typename Container::value_type>(0.0));
+    }
+
+    static auto toSnakeCase(std::string_view pascal) -> std::string;
 
 private:
     using FileNames     = std::vector<std::string>;

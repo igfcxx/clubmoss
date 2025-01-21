@@ -13,9 +13,9 @@ TEST_SUITE("Test Layout") {
 
     // 非法序列
     static const std::string LEN31_SEQ = "QWERTYUIOPASDFGHJKL;ZXCVBNM,.//"; // 非法序列长度 31
-    static const std::string LOWER_SEQ = "qwertyuiopasdfghjkl;zxcvbnm,./";  // 非法字符 q
-    static const std::string COLON_SEQ = "QWERTYUIOPASDFGHJKL:ZXCVBNM,./";  // 非法字符 :
-    static const std::string DUP_Q_SEQ = "QQQRTYUIOPASDFGHJKL;ZXCVBNM,./";  // 重复键值 Q
+    static const std::string LOWER_SEQ = "qwertyuiopasdfghjkl;zxcvbnm,./"; // 非法字符 q
+    static const std::string COLON_SEQ = "QWERTYUIOPASDFGHJKL:ZXCVBNM,./"; // 非法字符 :
+    static const std::string DUP_Q_SEQ = "QQQRTYUIOPASDFGHJKL;ZXCVBNM,./"; // 重复键值 Q
 
     TEST_CASE("test Layout(seq) construction") {
 

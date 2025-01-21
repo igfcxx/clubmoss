@@ -8,9 +8,9 @@ namespace clubmoss::layout {
 // 布局设置 //
 class Config final {
 public:
-    Config(Config&&)                 = delete;
-    Config(const Config&)            = delete;
-    Config& operator=(Config&&)      = delete;
+    Config(Config&&) = delete;
+    Config(const Config&) = delete;
+    Config& operator=(Config&&) = delete;
     Config& operator=(const Config&) = delete;
 
     static auto getInstance() -> Config&;
@@ -19,12 +19,12 @@ public:
 
 protected:
     std::vector<Area> mutable_areas_{}; // 可变区域列表
-    std::vector<Key> pinned_keys_{};    // 固定按键列表
-    std::vector<uz> area_ids_{};        // 区域编号列表
+    std::vector<Key> pinned_keys_{}; // 固定按键列表
+    std::vector<uz> area_ids_{}; // 区域编号列表
 
     uz num_mutable_keys_{}; // 可变按键数量
-    uz num_pinned_keys_{};  // 固定按键数量
-    uz num_areas_{};        // 可变区域数量
+    uz num_pinned_keys_{}; // 固定按键数量
+    uz num_areas_{}; // 可变区域数量
 
     Config();
 
@@ -50,26 +50,8 @@ private:
 
     auto resetCriticalMembers() -> void;
 
-    class IllegalCfg final : public FatalError {
-    public:
-        IllegalCfg() = delete;
-
-        explicit IllegalCfg(const std::string_view msg) noexcept
-            : FatalError(std::format(WHAT, msg)) {}
-
-        template <typename TC, typename... Ts>
-        explicit IllegalCfg(
-            const std::string& title,
-            const toml::basic_value<TC>& v,
-            const std::string& msg, Ts&&... tail
-        ) noexcept
-            : FatalError(std::format(WHAT, format_error(title, v, msg, std::forward<Ts>(tail)...))) {}
-
-    private:
-        static constexpr auto WHAT{
-            "Illegal layout configuration: {:s}"
-        };
-    };
+    static constexpr char WHAT[]{"Illegal layout config: {:s}"};
+    using IllegalCfg = IllegalToml<WHAT>;
 
     friend class Manager;
 

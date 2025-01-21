@@ -16,7 +16,8 @@ Layout::Layout() = default;
  *            从上到下, 行优先. 例如 "QWERTYUIOPASDFGHJKL;ZXCVBNM,./".
  **/
 Layout::Layout(const std::string_view seq) {
-    validateSeq(seq); loadFromSeq(seq);
+    validateSeq(seq);
+    loadFromSeq(seq);
 }
 
 auto Layout::validateSeq(const std::string_view seq) -> void {
@@ -59,7 +60,7 @@ auto Layout::getPos(const Cap cap) const noexcept -> Pos {
     return key_map_[cap];
 }
 
-auto Layout::toCapSeq() const noexcept -> std::string {
+auto Layout::toString() const noexcept -> std::string {
     auto caps = key_map_ | std::views::take(KEY_COUNT);
     return {caps.begin(), caps.end()};
 }

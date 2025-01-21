@@ -8,13 +8,12 @@
 #include "../../src/layout/layout_manager.hxx"
 #include "default_layout_configs.hxx"
 
-static constexpr size_t NUM_LAYOUTS    = 1000;
-static constexpr size_t MAX_DUPLICATES = 5;
-static constexpr size_t MAX_THREADS    = 4;
+static constexpr size_t NUM_LAYOUTS = 1000;
+static constexpr size_t MAX_THREADS = 8;
 
-namespace clubmoss::layout::bench::mutate {
+namespace clubmoss::layout::bench::reinit {
 
-TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
+TEST_SUITE("Bench multi-threading layout::Manager::reinit()") {
 
     using LytVec = std::vector<std::unique_ptr<Layout>>;
 
@@ -28,12 +27,12 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
                 ++num_duplicates;
             }
         }
-        CHECK_LT(num_duplicates, MAX_DUPLICATES);
+        CHECK_LT(num_duplicates, NUM_LAYOUTS / 100);
     }
 
     auto createLayouts(Manager& manager) -> LytVec {
         LytVec layouts;
-        for (uz i = 0; i < NUM_LAYOUTS * 2; ++i) {
+        for (uz i = 0; i < NUM_LAYOUTS; ++i) {
             layouts.emplace_back(std::make_unique<Layout>(manager.create()));
         }
         return layouts;
@@ -45,7 +44,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
             "baseline (1)",
             [&]() -> void {
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    manager.mutate(*layouts[i + NUM_LAYOUTS], *layouts[i]);
+                    manager.reinit(*layouts[i]);
                 }
             }
         );
@@ -59,7 +58,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
             [&]() -> void {
                 #pragma omp parallel for schedule(static) shared(layouts) firstprivate(manager) lastprivate(manager) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    manager.mutate(*layouts[i + NUM_LAYOUTS], *layouts[i]);
+                    manager.reinit(*layouts[i]);
                 }
             }
         );
@@ -73,7 +72,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
             [&]() -> void {
                 #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(manager) lastprivate(manager) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    manager.mutate(*layouts[i + NUM_LAYOUTS], *layouts[i]);
+                    manager.reinit(*layouts[i]);
                 }
             }
         );
@@ -84,8 +83,8 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
         std::vector managers(num_threads, Manager());
         LytVec layouts = createLayouts(managers[0]);
 
-        auto process_range = [](Manager& manager, const LytVec& layouts, const uz beg, const uz end) {
-            for (uz i = beg; i < end; ++i) { manager.mutate(*layouts[i + NUM_LAYOUTS], *layouts[i]); }
+        auto process_range = [](Manager& manager, const LytVec& layouts, const uz beg, const uz end) -> void {
+            for (uz i = beg; i < end; ++i) { manager.reinit(*layouts[i]); }
         };
 
         const uz range = NUM_LAYOUTS / num_threads;
@@ -110,7 +109,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
     auto benchAll(std::string_view title) -> void {
         ankerl::nanobench::Bench b;
 
-        b.title(fmt::format("mutate() - {:s}", title))
+        b.title(fmt::format("reinit() - {:s}", title))
          .unit("layout processed")
          .relative(true)
          .warmup(10)
@@ -126,7 +125,7 @@ TEST_SUITE("Bench multi-threading layout::Manager::mutate()") {
         }
     }
 
-    TEST_CASE("bench layout::Manager::mutate()") {
+    TEST_CASE("bench layout::Manager::reinit()") {
         REQUIRE_LE(MAX_THREADS, std::thread::hardware_concurrency());
         REQUIRE_GE(MAX_THREADS, 1);
 

@@ -45,9 +45,9 @@ Area& Area::operator=(const Area& rhs) {
     if (this == &rhs) { return *this; }
     cap_list_ = rhs.cap_list_;
     pos_list_ = rhs.pos_list_;
-    size_     = rhs.size_;
-    ths_      = rhs.ths_;
-    idx_      = ths_ + 1;
+    size_ = rhs.size_;
+    ths_ = rhs.ths_;
+    idx_ = ths_ + 1;
     return *this;
 }
 
@@ -94,14 +94,12 @@ auto Area::mutate(Layout& layout, Prng& prng) noexcept -> void {
 auto Area::isSafeFor(const Layout& layout) const noexcept -> bool {
     // 若区域内的所有[键值]都能在布局的相应位置中找到对应的对象, 不论顺序,
     // 则assign()和mutate()操作不会损坏对象, 返回真; 否则, 返回假.
-
     std::vector<Cap> observed_caps;
     for (const Pos pos : pos_list_) {
         observed_caps.emplace_back(
             layout.getCap(pos)
         );
     }
-
     // 排序在 layout 中被统计到的所有按键, 以消除顺序影响.
     std::ranges::stable_sort(observed_caps);
     return observed_caps == cap_list_;

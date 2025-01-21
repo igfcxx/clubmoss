@@ -1,0 +1,11 @@
+use_ols = true
+
+[chinese]
+key_cost = 2.0
+dis_cost = 1.0
+seq_cost = 1.0
+
+[english]
+key_cost = 2.0
+dis_cost = 1.0
+seq_cost = 1.0

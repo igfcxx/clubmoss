@@ -76,7 +76,7 @@ static auto collectTestFiles(
 namespace layout {
     static auto munOfDiffKeys(const Layout& lyt1, const Layout& lyt2) -> uz {
         uz counter = 0;
-        for (const auto &keys1 = lyt1.toCapSeq(), &keys2 = lyt2.toCapSeq();
+        for (const auto &keys1 = lyt1.toString(), &keys2 = lyt2.toString();
              auto [key1, key2] : std::views::zip(keys1, keys2)) {
             if (key1 != key2) {
                 ++counter;
