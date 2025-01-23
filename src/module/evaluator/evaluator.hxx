@@ -13,6 +13,9 @@ class Evaluator {
 public:
     auto evaluate(Sample& sample) noexcept -> void;
 
+    auto calcCost(Sample& sample, uz metric) noexcept -> void;
+
+protected:
     auto evalZhKeyCost(Sample& sample) noexcept -> void;
     auto evalEnKeyCost(Sample& sample) noexcept -> void;
     auto evalZhDisCost(Sample& sample) noexcept -> void;

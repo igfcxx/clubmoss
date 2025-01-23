@@ -11,14 +11,13 @@ Pool::Pool() {
 }
 
 auto Pool::search() noexcept -> void {
-    curr_epoch_ = best_epoch_ = 0;
     best_loss_ = std::numeric_limits<fz>::max();
+    curr_epoch_ = best_epoch_ = 0;
 
     reinitAndEvaluateSamples();
     sortSamples();
 
     while (curr_epoch_ < MAX_EPOCHS) {
-        sortSamples();
         if (const fz loss = samples_.front()->getLoss(); loss < best_loss_) {
             best_epoch_ = curr_epoch_;
             best_loss_ = loss;
@@ -28,6 +27,7 @@ auto Pool::search() noexcept -> void {
             break;
         }
         updateAndEvaluateSamples();
+        sortSamples();
         ++curr_epoch_;
     }
 }

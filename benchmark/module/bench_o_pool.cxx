@@ -22,20 +22,20 @@ TEST_SUITE("Bench optimizer::Pool::search()") {
         ankerl::nanobench::Bench b;
 
         b.title("Pool::search()")
-         .unit("full epoch")
+         .unit("Pool.epoch")
          .relative(true)
-         .minEpochIterations(5);
+         .epochs(3);
         b.performanceCounters(true);
 
         omp_set_num_threads(1);
         b.run("baseline", [&]() -> void { pool.search(); });
-        // for (int i = 2; i <= MAX_THREADS; i += 2) {
-        //     omp_set_num_threads(i);
-        //     b.run(
-        //         fmt::format("{:d} threads", i).c_str(),
-        //         [&]() -> void { pool.search(); }
-        //     );
-        // }
+        for (int i = 2; i <= MAX_THREADS; i += 2) {
+            omp_set_num_threads(i);
+            b.run(
+                fmt::format("{:d} threads", i).c_str(),
+                [&]() -> void { pool.search(); }
+            );
+        }
     }
 }
 

@@ -39,7 +39,6 @@ TEST_SUITE("Test optimizer::Pool") {
 
     TEST_CASE("show best sample in pools") {
         printTitle("Show best sample in pools:");
-
         for (uz i = 1; i <= 5; i++) {
             pool.search();
             fmt::println(

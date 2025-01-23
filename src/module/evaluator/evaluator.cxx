@@ -12,6 +12,38 @@ auto Evaluator::evaluate(Sample& sample) noexcept -> void {
     sample.update();
 }
 
+auto Evaluator::calcCost(Sample& sample, const uz metric) noexcept -> void {
+    switch (metric) {
+    case 0:
+        evalZhKeyCost(sample);
+        sample.loss_ = sample.raw_costs_[0];
+        break;
+    case 1:
+        evalEnKeyCost(sample);
+        sample.loss_ = sample.raw_costs_[1];
+        break;
+    case 2:
+        evalZhDisCost(sample);
+        sample.loss_ = sample.raw_costs_[2];
+        break;
+    case 3:
+        evalEnDisCost(sample);
+        sample.loss_ = sample.raw_costs_[3];
+        break;
+    case 4:
+        evalZhSeqCost(sample);
+        sample.loss_ = sample.raw_costs_[4];
+        break;
+    case 5:
+        evalEnSeqCost(sample);
+        sample.loss_ = sample.raw_costs_[5];
+        break;
+    default:
+        break;
+    }
+}
+
+
 auto Evaluator::evalZhKeyCost(Sample& sample) noexcept -> void {
     sample.raw_costs_[0] = kc_metric_.measure(sample, Resources::ZH_KC_DATA);
 }

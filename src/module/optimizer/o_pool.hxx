@@ -23,11 +23,6 @@ protected:
     layout::Manager mgr_{};
     Evaluator evl_{};
 
-    auto reinitAndEvaluateSamples() noexcept -> void;
-    auto updateAndEvaluateSamples() noexcept -> void;
-    auto sortSamples() -> void;
-
-private:
     uz size_{9600};
     uz half_{4800};
 
@@ -40,6 +35,10 @@ private:
     uz max_stagnation_epochs_{250};
 
     static constexpr uz MAX_EPOCHS{1000};
+
+    auto reinitAndEvaluateSamples() noexcept -> void;
+    auto updateAndEvaluateSamples() noexcept -> void;
+    auto sortSamples() -> void;
 };
 
 }
