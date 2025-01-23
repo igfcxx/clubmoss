@@ -8,13 +8,9 @@ namespace clubmoss::metric {
 // 击键代价指标 //
 class KeyCost {
 public:
-    explicit KeyCost(const key_cost::Data& data);
-
-    KeyCost() = delete;
-
-    auto analyze(const Layout&) -> void;
-    auto measure(const Layout&) -> fz;
-    auto check(const Layout&) -> bool;
+    auto analyze(const Layout&, const key_cost::Data& data) -> void;
+    auto measure(const Layout&, const key_cost::Data& data) -> fz;
+    auto check(const Layout&, const key_cost::Data& data) -> bool;
 
     static auto loadCfg(const Toml& cfg) -> void;
 
@@ -35,14 +31,12 @@ protected:
 
     fz similarity_{0.0}; // 与标准布局的相似度
 
-    key_cost::Data data_; // 待测数据
-
     auto calcFingerUsage() noexcept -> void;
 
 private:
     inline static key_cost::Config& cfg_ = key_cost::Config::getInstance();
 
-    auto calcSimilarity(const Layout&) noexcept -> void;
+    auto calcSimilarity(const Layout&, const key_cost::Data& data) noexcept -> void;
     auto validateUsage() noexcept -> void;
     auto collectStats() noexcept -> void;
 };

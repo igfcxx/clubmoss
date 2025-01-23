@@ -2,7 +2,8 @@
 
 namespace clubmoss::metric::seq_cost {
 
-Data::Data(const Toml& bigram_data, const Toml& trigram_data) {
+Data::Data(const Toml& data) {
+    const Toml& bigram_data = data.at("bigram");
     if (const uz records = bigram_data.size(); records < 50) {
         throw IllegalData(
             std::format(
@@ -18,6 +19,8 @@ Data::Data(const Toml& bigram_data, const Toml& trigram_data) {
         validateRecord(node.first, 2, bigram_data, i + 1);
         bigram_records_.emplace_back(node);
     }
+
+    const Toml& trigram_data = data.at("trigram");
     if (const uz records = trigram_data.size(); records < 50) {
         throw IllegalData(
             std::format(

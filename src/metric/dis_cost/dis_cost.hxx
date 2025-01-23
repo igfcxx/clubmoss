@@ -8,13 +8,9 @@ namespace clubmoss::metric {
 // 距离代价指标 //
 class DisCost {
 public:
-    explicit DisCost(const dis_cost::Data& data);
-
-    DisCost() = delete;
-
-    auto analyze(const Layout&) -> void;
-    auto measure(const Layout&) -> fz;
-    auto check(const Layout&) -> bool;
+    auto analyze(const Layout&, const dis_cost::Data& data) -> void;
+    auto measure(const Layout&, const dis_cost::Data& data) -> fz;
+    auto check(const Layout&, const dis_cost::Data& data) -> bool;
 
     static auto loadCfg(const Toml& cfg) -> void;
 
@@ -31,9 +27,7 @@ protected:
     fz right_hand_usage_{0.5}; // 右手使用率
     bool is_hand_unbalanced_{true}; // 左右手使用是否不均衡
 
-    dis_cost::Data data_; // 待测数据
-
-    auto calcMovementsOfEachFinger(const Layout& layout) noexcept -> void;
+    auto calcMovementsOfEachFinger(const Layout& layout, const dis_cost::Data& data) noexcept -> void;
 
     auto calcFingerUsage() noexcept -> void;
 

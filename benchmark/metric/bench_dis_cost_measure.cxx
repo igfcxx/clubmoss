@@ -20,7 +20,7 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
     static const std::string PATH = Utils::absPath("test/metric/dis_cost/data.toml");
     const Data EN_DATA(toml::parse<toml::ordered_type_config>(PATH));
 
-    DisCost dc_metric(EN_DATA);
+    DisCost dc_metric;
     layout::Manager manager;
 
     auto createLayouts(layout::Manager& manager) -> LytVec {
@@ -37,7 +37,7 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
             "baseline",
             [&]() -> void {
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    dc_metric.measure(*layouts[i], EN_DATA);
                 }
             }
         );
@@ -48,9 +48,9 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
         bench.run(
             fmt::format("omp: static ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(static) shared(layouts) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
+                #pragma omp parallel for schedule(static) shared(layouts, EN_DATA) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    dc_metric.measure(*layouts[i], EN_DATA);
                 }
             }
         );
@@ -61,9 +61,9 @@ TEST_SUITE("Bench multi-threading metric::DisCost::measure()") {
         bench.run(
             fmt::format("omp: guided ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
+                #pragma omp parallel for schedule(guided) shared(layouts, EN_DATA) firstprivate(dc_metric) lastprivate(dc_metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    dc_metric.measure(*layouts[i]);
+                    dc_metric.measure(*layouts[i], EN_DATA);
                 }
             }
         );

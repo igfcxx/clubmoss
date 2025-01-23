@@ -39,7 +39,7 @@ class Data final {
 public:
     Data() = delete;
 
-    Data(const Toml& bigram_data, const Toml& trigram_data);
+    explicit Data(const Toml& data);
 
     static constexpr uz MAX_RECORDS = 100;
 

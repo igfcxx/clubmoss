@@ -2,32 +2,30 @@
 
 namespace clubmoss::metric {
 
-DisCost::DisCost(const dis_cost::Data& data): data_(data) {}
-
 auto DisCost::loadCfg(const Toml& cfg) -> void { cfg_.loadCfg(cfg); }
 
-auto DisCost::analyze(const Layout& layout) -> void {
-    calcMovementsOfEachFinger(layout);
+auto DisCost::analyze(const Layout& layout, const dis_cost::Data& data) -> void {
+    calcMovementsOfEachFinger(layout, data);
     calcFingerUsage();
     collectStats();
 }
 
-auto DisCost::measure(const Layout& layout) -> fz {
-    calcMovementsOfEachFinger(layout);
+auto DisCost::measure(const Layout& layout, const dis_cost::Data& data) -> fz {
+    calcMovementsOfEachFinger(layout, data);
     cost_ = Utils::sum(finger_move_);
     return cost_;
 }
 
-auto DisCost::check(const Layout& layout) -> bool {
-    calcMovementsOfEachFinger(layout);
+auto DisCost::check(const Layout& layout, const dis_cost::Data& data) -> bool {
+    calcMovementsOfEachFinger(layout, data);
     calcFingerUsage();
     validateUsage();
     return valid_;
 }
 
-auto DisCost::calcMovementsOfEachFinger(const Layout& layout) noexcept -> void {
+auto DisCost::calcMovementsOfEachFinger(const Layout& layout, const dis_cost::Data& data) noexcept -> void {
     finger_move_.fill(0.0);
-    for (const auto& op : data_.records_) {
+    for (const auto& op : data.records_) {
         const Cap prev_cap = op.src;
         const Cap next_cap = op.dst;
         const fz freq = op.f;

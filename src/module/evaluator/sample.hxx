@@ -14,7 +14,7 @@ public:
 
     auto update() -> void;
 
-    [[nodiscard]] auto getLoss() const -> fz;
+    [[nodiscard]] auto getLoss() const noexcept -> fz;
 
     static auto loadWeights(const Toml& cfg) -> void;
     static auto loadFactors(const Toml& cfg) -> void;

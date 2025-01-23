@@ -21,7 +21,7 @@ auto Sample::update() -> void {
     }
 }
 
-auto Sample::getLoss() const -> fz {
+auto Sample::getLoss() const noexcept -> fz {
     return loss_;
 }
 

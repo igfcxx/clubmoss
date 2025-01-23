@@ -2,23 +2,21 @@
 
 namespace clubmoss::metric {
 
-KeyCost::KeyCost(const key_cost::Data& data) : data_(data) {}
-
 auto KeyCost::loadCfg(const Toml& cfg) -> void { cfg_.loadCfg(cfg); }
 
 /**
  * @brief 计算击键成本, 检查有效性, 并记录其他统计信息
  * @param layout 输入的布局
  */
-auto KeyCost::analyze(const Layout& layout) -> void {
+auto KeyCost::analyze(const Layout& layout, const key_cost::Data& data) -> void {
     cost_ = 0.0;
     heat_map_.fill(0.0);
     row_usage_.fill(0.0);
     col_usage_.fill(0.0);
     finger_usage_.fill(0.0);
     for (uz i = 0; i < KEY_COUNT; ++i) {
-        const fz freq = data_.freq_[i];
-        const Cap cap = data_.caps_[i];
+        const fz freq = data.freq_[i];
+        const Cap cap = data.caps_[i];
         const Pos pos = layout.getPos(cap);
         const Col col = Utils::colOf(pos);
         const Row row = Utils::rowOf(pos);
@@ -27,7 +25,7 @@ auto KeyCost::analyze(const Layout& layout) -> void {
         row_usage_[row] += freq;
         heat_map_[pos] += freq;
     }
-    calcSimilarity(layout);
+    calcSimilarity(layout, data);
     calcFingerUsage();
     collectStats();
 }
@@ -37,13 +35,13 @@ auto KeyCost::analyze(const Layout& layout) -> void {
  * @param layout 输入的布局
  * @return 击键成本
  */
-auto KeyCost::measure(const Layout& layout) -> fz {
+auto KeyCost::measure(const Layout& layout, const key_cost::Data& data) -> fz {
     cost_ = 0.0;
     for (uz i = 0; i < KEY_COUNT; i += 2) {
-        const fz freq1 = data_.freq_[i];
-        const fz freq2 = data_.freq_[i + 1];
-        const Pos pos1 = layout.getPos(data_.caps_[i]);
-        const Pos pos2 = layout.getPos(data_.caps_[i + 1]);
+        const fz freq1 = data.freq_[i];
+        const fz freq2 = data.freq_[i + 1];
+        const Pos pos1 = layout.getPos(data.caps_[i]);
+        const Pos pos2 = layout.getPos(data.caps_[i + 1]);
         cost_ += cfg_.costs_[pos1] * freq1 + cfg_.costs_[pos2] * freq2;
     }
     return cost_;
@@ -54,11 +52,11 @@ auto KeyCost::measure(const Layout& layout) -> fz {
  * @param layout 输入的布局
  * @return 布局是否有效
  */
-auto KeyCost::check(const Layout& layout) -> bool {
+auto KeyCost::check(const Layout& layout, const key_cost::Data& data) -> bool {
     col_usage_.fill(0.0);
     for (uz i = 0; i < KEY_COUNT; ++i) {
-        const fz freq = data_.freq_[i];
-        const Cap cap = data_.caps_[i];
+        const fz freq = data.freq_[i];
+        const Cap cap = data.caps_[i];
         const Pos pos = layout.getPos(cap);
         const Col col = Utils::colOf(pos);
         col_usage_[col] += freq;
@@ -118,7 +116,7 @@ auto KeyCost::collectStats() noexcept -> void {
     valid_ = valid_ and not is_hand_unbalanced_;
 }
 
-auto KeyCost::calcSimilarity(const Layout& layout) noexcept -> void {
+auto KeyCost::calcSimilarity(const Layout& layout, const key_cost::Data& data) noexcept -> void {
     auto is_same_finger = [](const Col col1, const Col col2) -> bool {
         if (col1 == col2) {
             return true;
@@ -138,7 +136,7 @@ auto KeyCost::calcSimilarity(const Layout& layout) noexcept -> void {
 
     static layout::baselines::Baseline ref = layout::baselines::QWERTY;
     for (const auto& [i, cap] : CAP_SET | std::views::enumerate) {
-        const fz freq = data_.freq_[i];
+        const fz freq = data.freq_[i];
         const Pos ref_pos = ref.getPos(cap);
         const Pos cur_pos = layout.getPos(cap);
         const Col ref_col = Utils::colOf(ref_pos);

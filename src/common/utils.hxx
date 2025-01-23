@@ -75,7 +75,7 @@ public:
         return std::accumulate(container.begin(), container.end(), static_cast<typename Container::value_type>(0.0));
     }
 
-    static auto toSnakeCase(std::string_view pascal) -> std::string;
+    static auto toSnakeCase(std::string_view pascal_case) -> std::string;
 
 private:
     using FileNames     = std::vector<std::string>;

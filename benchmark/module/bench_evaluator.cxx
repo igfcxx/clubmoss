@@ -6,7 +6,6 @@
 #include <doctest/doctest.h>
 
 #include "../../src/module/evaluator/evaluator.hxx"
-#include "../../src/layout/layout_manager.hxx"
 
 static constexpr size_t NUM_SAMPLES = 1000;
 static constexpr size_t MAX_THREADS = 12;
