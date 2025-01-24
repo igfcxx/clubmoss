@@ -1,10 +1,10 @@
 #include <doctest/doctest.h>
 
-#include "../../src/module/evaluator/evaluator.hxx"
-#include "../../src/layout/layout_manager.hxx"
-#include "../test_utilities.hxx"
+#include "../../../src/module/evaluator/evaluator.hxx"
+#include "../../../src/layout/layout_manager.hxx"
+#include "../../test_utilities.hxx"
 
-namespace clubmoss::test {
+namespace clubmoss::evaluator::test {
 
 TEST_SUITE("Test Evaluator") {
 

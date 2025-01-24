@@ -3,20 +3,31 @@
 namespace clubmoss {
 
 Sample::Sample(const Layout& layout) : Layout(layout) {}
+
 Sample::Sample(Layout&& layout) : Layout(layout) {}
 
-auto Sample::update() -> void {
-    for (uz i = 0; i < METRICS; ++i) {
+auto Sample::calcLoss() -> void {
+    for (uz i = 0; i < TASK_COUNT; ++i) {
         const fz cost = (raw_costs_[i] - biases_[i]) / ranges_[i];
         scaled_costs_[i] = std::clamp(cost, 0.0, 1.0);
     }
 
     loss_ = 0.0;
-    for (uz i = 0; i < METRICS; ++i) {
+    for (uz i = 0; i < TASK_COUNT; ++i) {
         if (use_ols_) {
             loss_ += scaled_costs_[i] * scaled_costs_[i] * weights_[i];
         } else {
             loss_ += scaled_costs_[i] * weights_[i];
+        }
+    }
+}
+
+auto Sample::calcLossWithPenalty() -> void {
+    calcLoss();
+
+    for (uz i = 0; i < TASK_COUNT; ++i) {
+        if (not valid_[i]) {
+            loss_ += 0.1;
         }
     }
 }
@@ -62,11 +73,9 @@ auto Sample::fetchWeight(const Toml& node) -> fz {
 }
 
 auto Sample::loadFactors(const Toml& cfg) -> void {
-    const auto b_table = cfg.at("biases").as_array();
-    const auto r_table = cfg.at("ranges").as_array();
-    for (uz i = 0; i < METRICS; ++i) {
-        biases_[i] = b_table.at(i).as_floating();
-        ranges_[i] = r_table.at(i).as_floating();
+    for (uz task_id = 0; task_id < TASK_COUNT; ++task_id) {
+        biases_[task_id] = cfg.at("biases").as_array().at(task_id).as_floating();
+        ranges_[task_id] = cfg.at("ranges").as_array().at(task_id).as_floating();
     }
 }
 

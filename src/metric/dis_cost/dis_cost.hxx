@@ -3,6 +3,10 @@
 
 #include "dis_cost_config.hxx"
 
+namespace clubmoss {
+class Analyzer;
+}
+
 namespace clubmoss::metric {
 
 // 距离代价指标 //
@@ -39,6 +43,8 @@ private:
 
     auto validateUsage() noexcept -> void;
     auto collectStats() noexcept -> void;
+
+    friend class clubmoss::Analyzer;
 };
 
 }

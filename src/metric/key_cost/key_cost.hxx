@@ -3,6 +3,10 @@
 
 #include "key_cost_config.hxx"
 
+namespace clubmoss {
+class Analyzer;
+}
+
 namespace clubmoss::metric {
 
 // 击键代价指标 //
@@ -39,6 +43,8 @@ private:
     auto calcSimilarity(const Layout&, const key_cost::Data& data) noexcept -> void;
     auto validateUsage() noexcept -> void;
     auto collectStats() noexcept -> void;
+
+    friend class clubmoss::Analyzer;
 };
 
 }

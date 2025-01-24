@@ -1,8 +1,8 @@
 #include <omp.h>
 #include <doctest/doctest.h>
 
-#include "../../src/module/optimizer/o_pool.hxx"
-#include "../test_utilities.hxx"
+#include "../../../src/module/optimizer/o_pool.hxx"
+#include "../../test_utilities.hxx"
 
 namespace clubmoss::optimizer::test {
 

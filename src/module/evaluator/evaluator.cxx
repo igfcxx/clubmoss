@@ -9,7 +9,7 @@ auto Evaluator::evaluate(Sample& sample) noexcept -> void {
     if (Sample::enabled_[3]) evalEnDisCost(sample);
     if (Sample::enabled_[4]) evalZhSeqCost(sample);
     if (Sample::enabled_[5]) evalEnSeqCost(sample);
-    sample.update();
+    sample.calcLoss();
 }
 
 auto Evaluator::calcCost(Sample& sample, const uz metric) noexcept -> void {
@@ -42,7 +42,6 @@ auto Evaluator::calcCost(Sample& sample, const uz metric) noexcept -> void {
         break;
     }
 }
-
 
 auto Evaluator::evalZhKeyCost(Sample& sample) noexcept -> void {
     sample.raw_costs_[0] = kc_metric_.measure(sample, Resources::ZH_KC_DATA);

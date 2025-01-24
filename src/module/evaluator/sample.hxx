@@ -6,13 +6,15 @@
 namespace clubmoss {
 
 class Evaluator;
+class Analyzer;
 
 class Sample : public Layout {
 public:
     explicit Sample(const Layout& layout);
     explicit Sample(Layout&& layout);
 
-    auto update() -> void;
+    auto calcLoss() -> void;
+    auto calcLossWithPenalty() -> void;
 
     [[nodiscard]] auto getLoss() const noexcept -> fz;
 
@@ -22,17 +24,16 @@ public:
 protected:
     fz loss_{std::numeric_limits<fz>::max()};
 
-    static constexpr uz METRICS = MetricId::_size() * Language::_size();
-
-    std::array<fz, METRICS> scaled_costs_{};
-    std::array<fz, METRICS> raw_costs_{};
+    std::array<fz, TASK_COUNT> scaled_costs_{};
+    std::array<fz, TASK_COUNT> raw_costs_{};
+    std::array<bool, TASK_COUNT> valid_{};
 
 private:
-    inline static std::array<fz, METRICS> biases_{};
-    inline static std::array<fz, METRICS> ranges_{};
+    inline static std::array<fz, TASK_COUNT> biases_{};
+    inline static std::array<fz, TASK_COUNT> ranges_{};
 
-    inline static std::array<bool, METRICS> enabled_{};
-    inline static std::array<fz, METRICS> weights_{};
+    inline static std::array<bool, TASK_COUNT> enabled_{};
+    inline static std::array<fz, TASK_COUNT> weights_{};
     inline static bool use_ols_ = true;
 
     static auto fetchWeight(const Toml& node) -> fz;
@@ -41,6 +42,7 @@ private:
     using IllegalCfg = IllegalToml<WHAT>;
 
     friend class Evaluator;
+    friend class Analyzer;
 };
 
 }

@@ -2,6 +2,7 @@
 #define CLUBMOSS_UTILS_HXX
 
 #include <map>
+#include <set>
 #include <array>
 #include <vector>
 #include <bitset>
@@ -10,7 +11,11 @@
 #include <ranges>
 #include <memory>
 #include <utility>
+#include <fstream>
+#include <iostream>
 #include <filesystem>
+
+#include <spdlog/spdlog.h>
 
 #include "types.hxx"
 
@@ -38,6 +43,8 @@ static constexpr std::array<Pos, KEY_COUNT> POS_SET = [] -> auto {
     }
     return temp;
 }();
+
+static constexpr uz TASK_COUNT = MetricId::_size() * Language::_size();
 
 using namespace toml::literals::toml_literals;
 
@@ -69,6 +76,8 @@ public:
     static auto posOf(Row, Col) noexcept -> Pos;
     static auto colOf(Pos) noexcept -> Col;
     static auto rowOf(Pos) noexcept -> Row;
+
+    static auto taskIdOf(MetricId, Language) noexcept -> uz;
 
     template <typename Container>
     static auto sum(const Container& container) -> typename Container::value_type {

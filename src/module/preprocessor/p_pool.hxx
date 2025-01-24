@@ -3,6 +3,10 @@
 
 #include "../optimizer/o_pool.hxx"
 
+namespace clubmoss {
+class Preprocessor;
+}
+
 namespace clubmoss::preprocessor {
 
 class Pool : public optimizer::Pool {
@@ -14,17 +18,18 @@ public:
     Pool& operator=(Pool&&) = delete;
     Pool& operator=(const Pool&) = delete;
 
-    auto search4max(uz metric_idx) -> fz;
-    auto search4min(uz metric_idx) -> fz;
+    auto search4min(uz task_id) -> fz;
+    auto search4max(uz task_id) -> fz;
 
 protected:
-    auto reinitAndEvaluateSamples(uz metric) noexcept -> void;
-    auto updateAndEvaluateSamples(uz metric) noexcept -> void;
+    auto reinitAndEvaluateSamples(uz task_id) noexcept -> void;
+    auto updateAndEvaluateSamples(uz task_id) noexcept -> void;
 
     auto sortSamplesDesc() -> void;
     auto sortSamplesAsc() -> void;
 
 private:
+    friend class clubmoss::Preprocessor;
 };
 
 }

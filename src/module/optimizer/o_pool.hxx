@@ -3,6 +3,10 @@
 
 #include "../evaluator/evaluator.hxx"
 
+namespace clubmoss {
+class Optimizer;
+}
+
 namespace clubmoss::optimizer {
 
 class Pool {
@@ -14,7 +18,7 @@ public:
     Pool& operator=(Pool&&) = delete;
     Pool& operator=(const Pool&) = delete;
 
-    auto search() noexcept -> void;
+    auto search() noexcept -> fz;
 
     auto setSize(uz size) noexcept -> void;
 
@@ -23,8 +27,8 @@ protected:
     layout::Manager mgr_{};
     Evaluator evl_{};
 
-    uz size_{9600};
-    uz half_{4800};
+    uz size_{4800};
+    uz half_{2400};
 
     fz best_loss_{-1};
 
@@ -35,10 +39,16 @@ protected:
     uz max_stagnation_epochs_{250};
 
     static constexpr uz MAX_EPOCHS{1000};
+    static constexpr fz ALPHA{0.5};
 
     auto reinitAndEvaluateSamples() noexcept -> void;
     auto updateAndEvaluateSamples() noexcept -> void;
     auto sortSamples() -> void;
+
+    auto updateMse() -> void;
+
+private:
+    friend class clubmoss::Optimizer;
 };
 
 }

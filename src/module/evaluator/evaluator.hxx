@@ -24,9 +24,9 @@ protected:
     auto evalEnSeqCost(Sample& sample) noexcept -> void;
 
 private:
-    metric::KeyCost kc_metric_;
-    metric::DisCost dc_metric_;
-    metric::SeqCost sc_metric_;
+    metric::KeyCost kc_metric_{};
+    metric::DisCost dc_metric_{};
+    metric::SeqCost sc_metric_{};
 };
 
 }

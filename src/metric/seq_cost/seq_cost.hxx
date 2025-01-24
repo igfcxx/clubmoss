@@ -3,6 +3,10 @@
 
 #include "seq_cost_config.hxx"
 
+namespace clubmoss {
+class Analyzer;
+}
+
 namespace clubmoss::metric {
 
 // 序列代价指标 //
@@ -23,6 +27,8 @@ protected:
 
 private:
     inline static seq_cost::Config& cfg_ = seq_cost::Config::getInstance();
+
+    friend class clubmoss::Analyzer;
 };
 
 }

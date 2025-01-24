@@ -10,7 +10,7 @@ Pool::Pool() {
     }
 }
 
-auto Pool::search() noexcept -> void {
+auto Pool::search() noexcept -> fz {
     best_loss_ = std::numeric_limits<fz>::max();
     curr_epoch_ = best_epoch_ = 0;
 
@@ -26,10 +26,19 @@ auto Pool::search() noexcept -> void {
         if (stagnation_epochs_ >= max_stagnation_epochs_) {
             break;
         }
+        ++curr_epoch_;
         updateAndEvaluateSamples();
         sortSamples();
-        ++curr_epoch_;
     }
+
+    updateMse();
+    spdlog::debug(
+        "Epochs: {: >3d} - {: >3d} + {: >3d}, stagnation = {:7.3f}",
+        curr_epoch_, best_epoch_, stagnation_epochs_,
+        fz(stagnation_epochs_) / fz(curr_epoch_) * 100.0
+    );
+
+    return best_loss_;
 }
 
 auto Pool::reinitAndEvaluateSamples() noexcept -> void {
@@ -55,6 +64,14 @@ auto Pool::sortSamples() -> void {
             return lhs->getLoss() < rhs->getLoss();
         }
     );
+}
+
+auto Pool::updateMse() -> void {
+    const uz new_value = static_cast<uz>(
+        static_cast<fz>(max_stagnation_epochs_) * ALPHA +
+        static_cast<fz>(best_epoch_) * 0.5 * (1.0 - ALPHA)
+    );
+    max_stagnation_epochs_ = std::clamp(new_value, 30uz, 300uz);
 }
 
 auto Pool::setSize(const uz size) noexcept -> void {

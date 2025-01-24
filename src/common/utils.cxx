@@ -81,6 +81,10 @@ auto Utils::rowOf(const Pos pos) noexcept -> Row {
     return pos / COL_COUNT;
 }
 
+auto Utils::taskIdOf(const MetricId m, const Language l) noexcept -> uz {
+    return m * Language::_size() + l;
+}
+
 auto Utils::toSnakeCase(const std::string_view pascal_case) -> std::string {
     std::string str;
     for (uz i = 0; i < pascal_case.length(); ++i) {
