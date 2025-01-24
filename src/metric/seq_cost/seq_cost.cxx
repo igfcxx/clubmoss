@@ -6,6 +6,8 @@ auto SeqCost::loadCfg(const Toml& cfg) -> void { cfg_.loadCfg(cfg); }
 
 auto SeqCost::analyze(const Layout& layout, const seq_cost::Data& data) -> void {
     measure(layout, data);
+    pain_lvl_of_top_2_grams_.clear();
+    pain_lvl_of_top_3_grams_.clear();
     for (uz i = 0; i < cfg_.top_ngrams_; ++i) {
         pain_lvl_of_top_2_grams_.emplace_back(cfg_.painLvlOf(data.bigram_records_[i], layout));
         pain_lvl_of_top_3_grams_.emplace_back(cfg_.painLvlOf(data.trigram_records_[i], layout));

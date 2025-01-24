@@ -51,10 +51,10 @@ auto Optimizer::analyzeSamples() -> void {
 auto Optimizer::saveResults() -> void {
     std::ofstream os;
     for (uz i = 0; i < 5; ++i) {
-        const Toml toml = analyzer_.analyze(best_samples_[i]);
+        const std::string stats = analyzer_.analyze(best_samples_[i]);
         const std::string sub_path = "cache/result/" + std::to_string(i + 1) + ".toml";
         os.open(Utils::absPath(sub_path), std::ios::out);
-        os << toml::format(toml);
+        os << stats;
         os.close();
     }
 }
