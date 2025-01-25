@@ -1,7 +1,7 @@
 #ifndef CLUBMOSS_DIS_COST_HXX
 #define CLUBMOSS_DIS_COST_HXX
 
-#include "dis_cost_config.hxx"
+#include "dis_cost_data.hxx"
 
 namespace clubmoss {
 class Analyzer;
@@ -9,14 +9,16 @@ class Analyzer;
 
 namespace clubmoss::metric {
 
-// 距离代价指标 //
+// 距离代价 //
 class DisCost {
 public:
-    auto analyze(const Layout&, const dis_cost::Data& data) -> void;
-    auto measure(const Layout&, const dis_cost::Data& data) -> fz;
-    auto check(const Layout&, const dis_cost::Data& data) -> bool;
+    explicit DisCost(dis_cost::Data &&data);
 
-    static auto loadCfg(const Toml& cfg) -> void;
+    auto measure(const Layout&) -> fz;
+    auto analyze(const Layout&) -> fz;
+    auto collectStats(const Layout&) -> void;
+
+    DisCost() = delete;
 
 protected:
     fz cost_{0.0}; // 代价分数
@@ -31,12 +33,14 @@ protected:
     fz right_hand_usage_{0.5}; // 右手使用率
     bool is_hand_unbalanced_{true}; // 左右手使用是否不均衡
 
-    auto calcMovementsOfEachFinger(const Layout& layout, const dis_cost::Data& data) noexcept -> void;
+    auto calcMovementsOfEachFinger(const Layout& layout) noexcept -> void;
 
     auto calcFingerUsage() noexcept -> void;
 
 private:
-    inline static dis_cost::Config& cfg_ = dis_cost::Config::getInstance();
+    inline static Config& cfg_ = Config::getInstance();
+
+    dis_cost::Data data_;
 
     auto updateUsage(const Layout&, Cap prev_cap, Cap next_cap, fz freq) noexcept -> void;
     auto updateUsage(const Layout&, Cap cap, fz freq) noexcept -> void;

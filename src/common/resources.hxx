@@ -5,7 +5,7 @@
 #include "../metric/key_cost/key_cost.hxx"
 #include "../metric/dis_cost/dis_cost.hxx"
 #include "../metric/seq_cost/seq_cost.hxx"
-#include "evaluator/sample.hxx"
+#include "../module/evaluator/sample.hxx"
 
 namespace clubmoss {
 
@@ -17,7 +17,7 @@ class Resources {
     // @formatter:off //
     inline static const Toml LAYOUT_CONFIG = parse("conf/layout.toml");
     inline static const Toml METRIC_CONFIG = parse("conf/metric.toml");
-    inline static const Toml WEIGHT_CONFIG = parse("conf/weight.toml");
+    inline static const Toml SCORE_CONFIG  = parse("conf/score.toml");
 
     inline static const Toml ZH_CHAR_FREQ = parse("cache/freq/chinese/char.toml");
     inline static const Toml EN_CHAR_FREQ = parse("cache/freq/english/char.toml");
@@ -30,20 +30,21 @@ class Resources {
 public:
     inline static const Toml STATUS = parse("cache/status.toml");
 
-    inline static const metric::key_cost::Data ZH_KC_DATA{ZH_CHAR_FREQ};
-    inline static const metric::key_cost::Data EN_KC_DATA{EN_CHAR_FREQ};
-    inline static const metric::dis_cost::Data ZH_DC_DATA{ZH_PAIR_FREQ};
-    inline static const metric::dis_cost::Data EN_DC_DATA{EN_PAIR_FREQ};
-    inline static const metric::seq_cost::Data ZH_SC_DATA{ZH_SEQ_FREQ};
-    inline static const metric::seq_cost::Data EN_SC_DATA{EN_SEQ_FREQ};
+    inline static std::array<metric::key_cost::Data, Language::_size()> KC_DATA{
+        metric::key_cost::Data(ZH_CHAR_FREQ), metric::key_cost::Data(EN_CHAR_FREQ)
+    };
+    inline static std::array<metric::dis_cost::Data, Language::_size()> DC_DATA{
+        metric::dis_cost::Data(ZH_PAIR_FREQ), metric::dis_cost::Data(EN_PAIR_FREQ)
+    };
+    inline static std::array<metric::seq_cost::Data, Language::_size()> SC_DATA{
+        metric::seq_cost::Data(ZH_SEQ_FREQ), metric::seq_cost::Data(EN_SEQ_FREQ)
+    };
 
+private:
     inline static const bool dummy = (
         layout::Manager::loadCfg(LAYOUT_CONFIG),
-        metric::KeyCost::loadCfg(METRIC_CONFIG.at("key_cost")),
-        metric::DisCost::loadCfg(METRIC_CONFIG.at("dis_cost")),
-        metric::SeqCost::loadCfg(METRIC_CONFIG.at("seq_cost")),
-        Sample::loadWeights(WEIGHT_CONFIG),
-        Sample::loadFactors(STATUS),
+        metric::Config::loadCfg(METRIC_CONFIG, SCORE_CONFIG),
+        Sample::loadCfg(SCORE_CONFIG, STATUS),
         true
     );
 };

@@ -2,30 +2,45 @@
 
 namespace clubmoss::metric {
 
-auto DisCost::loadCfg(const Toml& cfg) -> void { cfg_.loadCfg(cfg); }
+DisCost::DisCost(dis_cost::Data&& data) : data_(std::move(data)) {}
 
-auto DisCost::analyze(const Layout& layout, const dis_cost::Data& data) -> void {
-    calcMovementsOfEachFinger(layout, data);
-    calcFingerUsage();
-    collectStats();
-}
-
-auto DisCost::measure(const Layout& layout, const dis_cost::Data& data) -> fz {
-    calcMovementsOfEachFinger(layout, data);
+/**
+ * @brief 计算移动代价
+ * @param layout 输入的布局
+ * @return 移动代价
+*/
+auto DisCost::measure(const Layout& layout) -> fz {
+    calcMovementsOfEachFinger(layout);
     cost_ = Utils::sum(finger_move_);
     return cost_;
 }
 
-auto DisCost::check(const Layout& layout, const dis_cost::Data& data) -> bool {
-    calcMovementsOfEachFinger(layout, data);
+/**
+ * @brief 计算移动代价, 检查有效性
+ * @param layout 输入的布局
+ * @return 移动代价
+*/
+auto DisCost::analyze(const Layout& layout) -> fz {
+    calcMovementsOfEachFinger(layout);
+    cost_ = Utils::sum(finger_move_);
     calcFingerUsage();
     validateUsage();
-    return valid_;
+    return cost_;
 }
 
-auto DisCost::calcMovementsOfEachFinger(const Layout& layout, const dis_cost::Data& data) noexcept -> void {
+/**
+ * @brief 记录统计数据
+ * @param layout 输入的布局
+ */
+auto DisCost::collectStats(const Layout& layout) -> void {
+    calcMovementsOfEachFinger(layout);
+    calcFingerUsage();
+    collectStats();
+}
+
+auto DisCost::calcMovementsOfEachFinger(const Layout& layout) noexcept -> void {
     finger_move_.fill(0.0);
-    for (const auto& op : data.records_) {
+    for (const auto& op : data_.records_) {
         const Cap prev_cap = op.src;
         const Cap next_cap = op.dst;
         const fz freq = op.f;
@@ -39,6 +54,10 @@ auto DisCost::calcMovementsOfEachFinger(const Layout& layout, const dis_cost::Da
         }
     }
 }
+
+auto base_position = [](const uz finger) -> uz {
+    return finger + 10;
+};
 
 auto finger_to_press = [](const Pos pos) -> uz {
     const Col col = Utils::colOf(pos);
@@ -70,8 +89,8 @@ auto DisCost::updateUsage(
     if (prev_fin != next_fin) {
         // prev finger: prev key -> it's base key
         // next finger: next key -> it's base key
-        const Pos prev_fin_curr_pos = cfg_.base_positions_[prev_fin];
-        const Pos next_fin_curr_pos = cfg_.base_positions_[next_fin];
+        const Pos prev_fin_curr_pos = base_position(prev_fin);
+        const Pos next_fin_curr_pos = base_position(next_fin);
         finger_move_[prev_fin] += cfg_.disBetween(prev_fin_curr_pos, prev_pos) * freq;
         finger_move_[next_fin] += cfg_.disBetween(next_fin_curr_pos, next_pos) * freq;
     } else {
@@ -84,7 +103,7 @@ auto DisCost::updateUsage(const Layout& layout, const Cap cap, const fz freq) no
     // @formatter:off //
     const Pos pos = layout.getPos(cap);
     const uz  fin = finger_to_press(pos);
-    const Pos base_pos = cfg_.base_positions_[fin];
+    const Pos base_pos = base_position(fin);
     finger_move_[fin] += cfg_.disBetween(pos, base_pos) * freq;
     // @formatter:on //
 }
@@ -99,7 +118,7 @@ auto DisCost::calcFingerUsage() noexcept -> void {
 auto DisCost::validateUsage() noexcept -> void {
     // 检查每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
-        if (finger_usage_[fin] > cfg_.max_finger_usage_[fin]) {
+        if (finger_usage_[fin] > cfg_.max_finger_mov_[fin]) {
             valid_ = false;
             return;
         }
@@ -107,13 +126,13 @@ auto DisCost::validateUsage() noexcept -> void {
     // 检查左右手使用是否均衡
     fz left_hand_usage = 0.0;
     for (uz i = 0; i < 5; ++i) { left_hand_usage += finger_usage_[i]; }
-    valid_ = std::abs(left_hand_usage - 0.5) <= cfg_.max_hand_usage_imbalance_;
+    valid_ = std::abs(left_hand_usage - 0.5) <= cfg_.max_hand_mov_imbalance_;
 }
 
 auto DisCost::collectStats() noexcept -> void {
     // 检查并记录每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
-        is_finger_overused_[fin] = finger_usage_[fin] > cfg_.max_finger_usage_[fin];
+        is_finger_overused_[fin] = finger_usage_[fin] > cfg_.max_finger_mov_[fin];
     }
 
     // 记录左手使用率
@@ -127,7 +146,7 @@ auto DisCost::collectStats() noexcept -> void {
 
     // 检查并记录左右手使用是否均衡
     const fz deviation = std::abs(left_hand_usage_ - 0.5);
-    is_hand_unbalanced_ = deviation > cfg_.max_hand_usage_imbalance_;
+    is_hand_unbalanced_ = deviation > cfg_.max_hand_mov_imbalance_;
 
     // 记录布局整体是否有效
     valid_ = not is_hand_unbalanced_;

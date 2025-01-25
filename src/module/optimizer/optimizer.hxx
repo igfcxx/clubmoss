@@ -2,7 +2,6 @@
 #define CLUBMOSS_OPTIMIZER_HXX
 
 #include "o_pool.hxx"
-#include "../evaluator/analyzer.hxx"
 
 namespace clubmoss {
 
@@ -12,7 +11,6 @@ public:
 
 private:
     optimizer::Pool pool_{};
-    Analyzer analyzer_{};
 
     uz curr_pool_{0};
     uz best_pool_{0};

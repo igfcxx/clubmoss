@@ -1,39 +1,9 @@
 #ifndef CLUBMOSS_SEQ_COST_DATA_HXX
 #define CLUBMOSS_SEQ_COST_DATA_HXX
 
-#include "../../layout/layout.hxx"
-
-namespace clubmoss::metric {
-class SeqCost;
-}
+#include "../metric_config.hxx"
 
 namespace clubmoss::metric::seq_cost {
-
-using Node = std::pair<const std::string, const Toml&>;
-
-template <uz N> requires (N <= 4)
-struct Ngram final {
-    std::array<Cap, N> caps{0};
-    fz f{0.0};
-
-    Ngram() = default;
-
-    explicit Ngram(const Node& node)
-        : f(node.second.as_floating()) {
-        for (const auto& [c, cap] : std::views::zip(node.first, caps)) {
-            cap = static_cast<Cap>(std::toupper(c));
-        }
-    }
-
-    auto operator<=>(const Ngram& other) const noexcept -> std::weak_ordering {
-        if (this->f > other.f) { return std::weak_ordering::greater; }
-        if (this->f < other.f) { return std::weak_ordering::less; }
-        return std::weak_ordering::equivalent;
-    }
-};
-
-using Bigram = Ngram<2>;
-using Trigram = Ngram<3>;
 
 class Data final {
 public:

@@ -83,8 +83,7 @@ BETTER_ENUM(
     PosRelation, uz,
     SamePosition = 0,
     SameFinger   = 1,
-    SameHand     = 2,
-    None         = 3
+    SameHand     = 2
 )
 
 BETTER_ENUM(

@@ -31,6 +31,8 @@ auto Pool::search() noexcept -> fz {
         sortSamples();
     }
 
+    for (uz i = 0; i < 10; ++i) {}
+
     updateMse();
     spdlog::debug(
         "Epochs: {: >3d} - {: >3d} + {: >3d}, stagnation = {:7.3f}",
@@ -54,6 +56,14 @@ auto Pool::updateAndEvaluateSamples() noexcept -> void {
     for (uz i = half_; i < size_; ++i) {
         mgr_.mutate(*samples_[i], *samples_[i - half_]);
         evl_.evaluate(*samples_[i]);
+    }
+}
+
+auto Pool::checkAllSamples() noexcept -> void {
+    for (auto& sample : samples_) {
+        if (not evl_.check(*sample)) {
+
+        }
     }
 }
 

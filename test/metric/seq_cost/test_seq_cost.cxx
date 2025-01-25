@@ -6,50 +6,53 @@
 
 namespace clubmoss::metric::seq_cost::test {
 
-TEST_SUITE("Test metric::SeqCost") {
-
-    static const std::string DATA_PATH = Utils::absPath("test/metric/seq_cost/data.toml");
-    static const std::string CFG_PATH = Utils::absPath("test/metric/seq_cost/cfg.toml");
-
-    const Data data(toml::parse<toml::ordered_type_config>(DATA_PATH));
+TEST_CASE("test metric::SeqCost") {
+    static const std::string D_PATH = Utils::absPath("test/metric/seq_cost/data.toml");
+    Data data(toml::parse<toml::ordered_type_config>(D_PATH));
+    SeqCost kc_metric(std::move(data));
     layout::Manager manager;
-    SeqCost sc_metric;
 
-    TEST_CASE("test metric::SeqCost::measure()") {
-        SeqCost::loadCfg(toml::parse(CFG_PATH).at("seq_cost"));
-        const fz cost_1 = sc_metric.measure(layout::baselines::QWERTY, data);
-        const fz cost_2 = sc_metric.measure(layout::baselines::DVORAK, data);
-        CHECK(cost_1 > cost_2);
+    SUBCASE("load config") {
+        static const Toml M_CFG = toml::parse(Utils::absPath("test/metric/metric.toml"));
+        static const Toml S_CFG = toml::parse(Utils::absPath("test/metric/score.toml"));
+        Config::loadCfg(M_CFG, S_CFG);
     }
 
-    TEST_CASE("test metric::SeqCost::check()") {
-        CHECK_FALSE(sc_metric.check(layout::baselines::QWERTY, data));
-        CHECK(sc_metric.check(layout::baselines::DVORAK, data));
-        CHECK(sc_metric.check(layout::baselines::NORMAN, data));
+    SUBCASE("measure() and analyze()") {
+        const fz cost_q1 = kc_metric.measure(layout::baselines::QWERTY);
+        const fz cost_d1 = kc_metric.measure(layout::baselines::DVORAK);
+        CHECK(cost_q1 > cost_d1);
+
+        const fz cost_q2 = kc_metric.measure(layout::baselines::QWERTY);
+        const fz cost_d2 = kc_metric.measure(layout::baselines::DVORAK);
+        CHECK(cost_q2 == doctest::Approx(cost_q1).epsilon(0.01));
+        CHECK(cost_d2 == doctest::Approx(cost_d1).epsilon(0.01));
+
+        const fz cost_q3 = kc_metric.analyze(layout::baselines::QWERTY);
+        const fz cost_d3 = kc_metric.analyze(layout::baselines::DVORAK);
+        CHECK(cost_q3 == doctest::Approx(cost_q1).epsilon(0.01));
+        CHECK(cost_d3 == doctest::Approx(cost_d1).epsilon(0.01));
     }
 
-    TEST_CASE("show metric::SeqCost scores") {
-
-        SUBCASE("random layouts") {
-            printTitle("Show metric::SeqCost scores - random layouts:");
-            for (uz i = 1; i <= 5; i++) {
-                const Layout layout = manager.create();
-                const std::string s = layout.toString();
-                const fz cost = sc_metric.measure(layout, data);
-                fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, cost);
-            }
-            blankLine();
+    SUBCASE("show costs of random layouts") {
+        printTitle("Show metric::SeqCost results - random layouts:");
+        for (uz i = 1; i <= 5; i++) {
+            const Layout layout = manager.create();
+            const std::string s = layout.toString();
+            const fz cost = kc_metric.measure(layout);
+            fmt::println(stderr, "{:d}. {:s} - {:.3f}", i, s, cost);
         }
+        blankLine();
+    }
 
-        SUBCASE("baselines") {
-            printTitle("Show metric::SeqCost scores - baselines:");
-            for (const auto& [i, layout] : layout::baselines::ALL | std::views::enumerate) {
-                const std::string s = layout.name;
-                const fz cost = sc_metric.measure(layout, data);
-                fmt::println(stderr, "{:0>2d}. {:10s} {:.3f}", i + 1, s, cost);
-            }
-            blankLine();
+    SUBCASE("show costs of baselines") {
+        printTitle("Show metric::SeqCost results - baselines:");
+        for (const auto& [i, layout] : layout::baselines::ALL | std::views::enumerate) {
+            const std::string s = layout.name;
+            const fz cost = kc_metric.measure(layout);
+            fmt::println(stderr, "{:0>2d}. {:10s} {:.3f}", i + 1, s, cost);
         }
+        blankLine();
     }
 }
 

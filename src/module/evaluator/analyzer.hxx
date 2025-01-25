@@ -11,7 +11,9 @@ namespace clubmoss {
 
 class Analyzer {
 public:
-    auto analyze(Sample& sample) -> std::string;
+    auto analyze(Sample& sample) -> fz;
+
+    auto saveResult(Sample& sample) -> std::string;
 
 protected:
     auto analyzeZhKeyCost(Sample& sample) noexcept -> void;

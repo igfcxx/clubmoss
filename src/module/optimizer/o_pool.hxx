@@ -2,6 +2,7 @@
 #define CLUBMOSS_OPTIMIZER_POOL_HXX
 
 #include "../evaluator/evaluator.hxx"
+#include "../evaluator/analyzer.hxx"
 
 namespace clubmoss {
 class Optimizer;
@@ -26,6 +27,7 @@ protected:
     std::vector<std::unique_ptr<Sample>> samples_{};
     layout::Manager mgr_{};
     Evaluator evl_{};
+    Analyzer ana_{};
 
     uz size_{4800};
     uz half_{2400};
@@ -43,6 +45,7 @@ protected:
 
     auto reinitAndEvaluateSamples() noexcept -> void;
     auto updateAndEvaluateSamples() noexcept -> void;
+    auto checkAllSamples() noexcept -> void;
     auto sortSamples() -> void;
 
     auto updateMse() -> void;

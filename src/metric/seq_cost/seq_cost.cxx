@@ -2,40 +2,61 @@
 
 namespace clubmoss::metric {
 
-auto SeqCost::loadCfg(const Toml& cfg) -> void { cfg_.loadCfg(cfg); }
+SeqCost::SeqCost(seq_cost::Data&& data) : data_(std::move(data)) {}
 
-auto SeqCost::analyze(const Layout& layout, const seq_cost::Data& data) -> void {
-    measure(layout, data);
-    pain_lvl_of_top_2_grams_.clear();
-    pain_lvl_of_top_3_grams_.clear();
-    for (uz i = 0; i < cfg_.top_ngrams_; ++i) {
-        pain_lvl_of_top_2_grams_.emplace_back(cfg_.painLvlOf(data.bigram_records_[i], layout));
-        pain_lvl_of_top_3_grams_.emplace_back(cfg_.painLvlOf(data.trigram_records_[i], layout));
-    }
-}
-
-auto SeqCost::measure(const Layout& layout, const seq_cost::Data& data) -> fz {
+/**
+ * @brief 计算组合代价
+ * @param layout 输入的布局
+ * @return 组合代价
+*/
+auto SeqCost::measure(const Layout& layout) -> fz {
     cost_ = 0.0;
-    for (const seq_cost::Bigram& bigram : data.bigram_records_) {
-        cost_ += cfg_.costOf(bigram, layout) * bigram.f;
+    for (const Bigram& gm : data_.bigram_records_) {
+        cost_ += cfg_.costOf(gm, layout) * gm.f;
     }
-    for (const seq_cost::Trigram& trigram : data.trigram_records_) {
-        cost_ += cfg_.costOf(trigram, layout) * trigram.f;
+    for (const Trigram& gm : data_.trigram_records_) {
+        cost_ += cfg_.costOf(gm, layout) * gm.f;
     }
     return cost_;
 }
 
-auto SeqCost::check(const Layout& layout, const seq_cost::Data& data) -> bool {
+/**
+ * @brief 计算组合代价, 检查有效性
+ * @param layout 输入的布局
+ * @return 组合代价
+*/
+auto SeqCost::analyze(const Layout& layout) -> fz {
+    measure(layout);
     uz bad_ngram_count = 0;
-    for (uz i = 0; i < cfg_.top_ngrams_; ++i) {
-        if (cfg_.painLvlOf(data.bigram_records_[i], layout) >= PainLevel::Severe) {
+    for (uz i = 0; i < cfg_.ngrams_to_test_; ++i) {
+        if (cfg_.costOf(data_.bigram_records_[i], layout) > cfg_.max_pain_lvl_cost_) { ++bad_ngram_count; }
+        if (cfg_.costOf(data_.trigram_records_[i], layout) > cfg_.max_pain_lvl_cost_) { ++bad_ngram_count; }
+    }
+    valid_ = bad_ngram_count <= cfg_.max_bad_ngram_count_;
+    return cost_;
+}
+
+/**
+ * @brief 记录统计数据
+ * @param layout 输入的布局
+ */
+auto SeqCost::collectStats(const Layout& layout) -> void {
+    uz bad_ngram_count = 0;
+    cost_of_top_2_grams_.clear();
+    cost_of_top_3_grams_.clear();
+    for (uz i = 0; i < cfg_.ngrams_to_test_; ++i) {
+        const uz bg_cost = cfg_.costOf(data_.bigram_records_[i], layout);
+        cost_of_top_2_grams_.emplace_back(bg_cost);
+        if (bg_cost > cfg_.max_pain_lvl_cost_) {
             ++bad_ngram_count;
         }
-        if (cfg_.painLvlOf(data.trigram_records_[i], layout) >= PainLevel::Severe) {
+        const uz tg_cost = cfg_.costOf(data_.trigram_records_[i], layout);
+        cost_of_top_3_grams_.emplace_back(tg_cost);
+        if (tg_cost > cfg_.max_pain_lvl_cost_) {
             ++bad_ngram_count;
         }
     }
-    return bad_ngram_count <= cfg_.bad_allowed_;
+    valid_ = bad_ngram_count <= cfg_.max_bad_ngram_count_;
 }
 
 }

@@ -1,11 +1,7 @@
 #ifndef CLUBMOSS_DIS_COST_DATA_HXX
 #define CLUBMOSS_DIS_COST_DATA_HXX
 
-#include "../../layout/layout.hxx"
-
-namespace clubmoss::metric {
-class DisCost;
-}
+#include "../metric_config.hxx"
 
 namespace clubmoss::metric::dis_cost {
 

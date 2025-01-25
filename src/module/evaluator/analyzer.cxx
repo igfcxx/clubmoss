@@ -2,7 +2,7 @@
 
 namespace clubmoss {
 
-auto Analyzer::analyze(Sample& sample) -> std::string {
+auto Analyzer::analyze(Sample& sample) -> fz {
     analyzeZhKeyCost(sample);
     analyzeEnKeyCost(sample);
     analyzeZhDisCost(sample);
@@ -11,6 +11,11 @@ auto Analyzer::analyze(Sample& sample) -> std::string {
     analyzeEnSeqCost(sample);
 
     sample.calcLossWithPenalty();
+    return sample.loss_;
+}
+
+auto Analyzer::saveResult(Sample& sample) -> std::string {
+    const fz similarity = (zh_kc_metric_.similarity_ + en_kc_metric_.similarity_) / 2;
 
     const Toml zh_stats(
         toml::ordered_table{
@@ -28,7 +33,6 @@ auto Analyzer::analyze(Sample& sample) -> std::string {
             {"3gram_pain_levels", zh_sc_metric_.pain_lvl_of_top_3_grams_},
         }
     );
-
     const Toml en_stats(
         toml::ordered_table{
             {"heat_map", en_kc_metric_.heat_map_},
@@ -46,8 +50,6 @@ auto Analyzer::analyze(Sample& sample) -> std::string {
         }
     );
 
-    const fz similarity = (zh_kc_metric_.similarity_ + en_kc_metric_.similarity_) / 2;
-
     const Toml stats(
         toml::ordered_table{
             {"keys", sample.toString()},
@@ -63,7 +65,6 @@ auto Analyzer::analyze(Sample& sample) -> std::string {
             {"en_stats", en_stats},
         }
     );
-
     return toml::format(stats);
 }
 

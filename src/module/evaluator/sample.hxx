@@ -18,8 +18,7 @@ public:
 
     [[nodiscard]] auto getLoss() const noexcept -> fz;
 
-    static auto loadWeights(const Toml& cfg) -> void;
-    static auto loadFactors(const Toml& cfg) -> void;
+    static auto loadCfg(const Toml& score_cfg, const Toml& status) -> void;
 
 protected:
     fz loss_{std::numeric_limits<fz>::max()};
