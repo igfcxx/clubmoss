@@ -3,40 +3,51 @@
 namespace clubmoss {
 
 Sample::Sample(const Layout& layout) : Layout(layout) {}
+
 Sample::Sample(Layout&& layout) : Layout(layout) {}
 
-auto Sample::update() -> void {
-    for (uz i = 0; i < METRICS; ++i) {
+auto Sample::calcLoss() -> void {
+    for (uz i = 0; i < TASK_COUNT; ++i) {
         const fz cost = (raw_costs_[i] - biases_[i]) / ranges_[i];
         scaled_costs_[i] = std::clamp(cost, 0.0, 1.0);
     }
 
     loss_ = 0.0;
-    for (uz i = 0; i < METRICS; ++i) {
-        if (use_ols_) {
-            loss_ += scaled_costs_[i] * scaled_costs_[i] * weights_[i];
-        } else {
-            loss_ += scaled_costs_[i] * weights_[i];
-        }
+    for (uz i = 0; i < TASK_COUNT; ++i) {
+        loss_ += scaled_costs_[i] * weights_[i];
     }
 }
 
-auto Sample::getLoss() const -> fz {
+auto Sample::calcLossWithPenalty() -> void {
+    calcLoss();
+    flaws_ = 0;
+    for (uz i = 0; i < TASK_COUNT; ++i) {
+        flaws_ += flaw_cnt_[i];
+    }
+    loss_ += 0.01 * flaws_;
+}
+
+auto Sample::getLoss() const noexcept -> fz {
     return loss_;
 }
 
-auto Sample::loadWeights(const Toml& cfg) -> void {
-    use_ols_ = cfg.at("use_ols").as_boolean();
+auto Sample::getRank() const noexcept -> uz {
+    return rank_;
+}
 
+auto Sample::getFlaws() const noexcept -> uz {
+     return flaws_;
+}
+
+auto Sample::loadCfg(const Toml& score_cfg, const Toml& status) -> void {
     weights_.fill(0.0);
     for (const Language lang : Language::_values()) {
         for (const MetricId metric : MetricId::_values()) {
             const std::string lang_name = Utils::toSnakeCase(lang._to_string());
             const std::string metric_name = Utils::toSnakeCase(metric._to_string());
 
-            const fz w = fetchWeight(cfg.at(lang_name).at(metric_name));
+            const fz w = fetchWeight(score_cfg.at("weights").at(lang_name).at(metric_name));
             const uz i = metric * Language::_size() + lang;
-            enabled_[i] = w != 0.0;
             weights_[i] = w;
         }
     }
@@ -44,6 +55,11 @@ auto Sample::loadWeights(const Toml& cfg) -> void {
     const fz total_weight = Utils::sum(weights_);
     for (fz& weight : weights_) {
         weight /= total_weight;
+    }
+
+    for (uz task_id = 0; task_id < TASK_COUNT; ++task_id) {
+        biases_[task_id] = status.at("biases").as_array().at(task_id).as_floating();
+        ranges_[task_id] = status.at("ranges").as_array().at(task_id).as_floating();
     }
 }
 
@@ -59,15 +75,6 @@ auto Sample::fetchWeight(const Toml& node) -> fz {
         );
     }
     return weight;
-}
-
-auto Sample::loadFactors(const Toml& cfg) -> void {
-    const auto b_table = cfg.at("biases").as_array();
-    const auto r_table = cfg.at("ranges").as_array();
-    for (uz i = 0; i < METRICS; ++i) {
-        biases_[i] = b_table.at(i).as_floating();
-        ranges_[i] = r_table.at(i).as_floating();
-    }
 }
 
 }

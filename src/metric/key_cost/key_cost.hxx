@@ -1,26 +1,24 @@
 #ifndef CLUBMOSS_KEY_COST_HXX
 #define CLUBMOSS_KEY_COST_HXX
 
-#include "key_cost_config.hxx"
+#include "key_cost_data.hxx"
 
 namespace clubmoss::metric {
 
-// 击键代价指标 //
+// 击键代价 //
 class KeyCost {
 public:
     explicit KeyCost(const key_cost::Data& data);
 
+    auto measure(const Layout&) -> fz;
+    auto analyze(const Layout&) -> std::pair<fz, uz>;
+    auto scan(const Layout&, Toml& stats) -> std::pair<fz, uz>;
+
     KeyCost() = delete;
 
-    auto analyze(const Layout&) -> void;
-    auto measure(const Layout&) -> fz;
-    auto check(const Layout&) -> bool;
-
-    static auto loadCfg(const Toml& cfg) -> void;
-
 protected:
-    fz cost_{0.0}; // 代价分数
-    bool valid_{false}; // 是否有效
+    fz cost_{0.0}; // 代价
+    uz flaw_count_{0}; // 缺陷
 
     std::array<fz, KEY_COUNT> heat_map_{0.0}; // 热力图
     std::array<fz, ROW_COUNT> row_usage_{0.0}; // 行使用率
@@ -35,16 +33,17 @@ protected:
 
     fz similarity_{0.0}; // 与标准布局的相似度
 
-    key_cost::Data data_; // 待测数据
-
-    auto calcFingerUsage() noexcept -> void;
+    auto calcFingerUsage(const Layout&) noexcept -> void;
 
 private:
-    inline static key_cost::Config& cfg_ = key_cost::Config::getInstance();
+    inline static Config& cfg_ = Config::getInstance();
 
-    auto calcSimilarity(const Layout&) noexcept -> void;
-    auto validateUsage() noexcept -> void;
+    key_cost::Data data_;
+
+    auto validateLayout() noexcept -> void;
     auto collectStats() noexcept -> void;
+
+    friend class clubmoss::Evaluator;
 };
 
 }

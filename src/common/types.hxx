@@ -26,7 +26,10 @@
 
 #include "prngs.hxx"
 
+#define TOML11_NO_ERROR_PREFIX
+
 namespace clubmoss {
+
 using u8 = uint8_t; // 最小无符号整型
 using uz = size_t; // 原生无符号整型
 using fz = double; // 默认浮点型
@@ -80,8 +83,7 @@ BETTER_ENUM(
     PosRelation, uz,
     SamePosition = 0,
     SameFinger   = 1,
-    SameHand     = 2,
-    None         = 3
+    SameHand     = 2
 )
 
 BETTER_ENUM(

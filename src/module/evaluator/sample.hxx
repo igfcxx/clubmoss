@@ -7,39 +7,48 @@ namespace clubmoss {
 
 class Evaluator;
 
+namespace metric {
+    class KeyCost;
+    class DisCost;
+    class SeqCost;
+}
+
 class Sample : public Layout {
 public:
     explicit Sample(const Layout& layout);
     explicit Sample(Layout&& layout);
 
-    auto update() -> void;
+    auto calcLoss() -> void;
+    auto calcLossWithPenalty() -> void;
 
-    [[nodiscard]] auto getLoss() const -> fz;
+    [[nodiscard]] auto getLoss() const noexcept -> fz;
+    [[nodiscard]] auto getRank() const noexcept -> uz;
+    [[nodiscard]] auto getFlaws() const noexcept -> uz;
 
-    static auto loadWeights(const Toml& cfg) -> void;
-    static auto loadFactors(const Toml& cfg) -> void;
+    static auto loadCfg(const Toml& score_cfg, const Toml& status) -> void;
 
 protected:
     fz loss_{std::numeric_limits<fz>::max()};
+    uz rank_{std::numeric_limits<uz>::max()};
+    uz flaws_{0};
 
-    static constexpr uz METRICS = MetricId::_size() * Language::_size();
-
-    std::array<fz, METRICS> scaled_costs_{};
-    std::array<fz, METRICS> raw_costs_{};
+    std::array<fz, TASK_COUNT> scaled_costs_{};
+    std::array<fz, TASK_COUNT> raw_costs_{};
+    std::array<uz, TASK_COUNT> flaw_cnt_{};
 
 private:
-    inline static std::array<fz, METRICS> biases_{};
-    inline static std::array<fz, METRICS> ranges_{};
-
-    inline static std::array<bool, METRICS> enabled_{};
-    inline static std::array<fz, METRICS> weights_{};
-    inline static bool use_ols_ = true;
+    inline static std::array<fz, TASK_COUNT> biases_{};
+    inline static std::array<fz, TASK_COUNT> ranges_{};
+    inline static std::array<fz, TASK_COUNT> weights_{};
 
     static auto fetchWeight(const Toml& node) -> fz;
 
     static constexpr char WHAT[]{"Illegal weight config: {:s}"};
     using IllegalCfg = IllegalToml<WHAT>;
 
+    friend class metric::KeyCost;
+    friend class metric::DisCost;
+    friend class metric::SeqCost;
     friend class Evaluator;
 };
 

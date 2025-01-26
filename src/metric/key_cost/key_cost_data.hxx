@@ -1,11 +1,7 @@
 #ifndef CLUBMOSS_KEY_COST_DATA_HXX
 #define CLUBMOSS_KEY_COST_DATA_HXX
 
-#include "../../layout/layout.hxx"
-
-namespace clubmoss::metric {
-class KeyCost;
-}
+#include "../metric_config.hxx"
 
 namespace clubmoss::metric::key_cost {
 

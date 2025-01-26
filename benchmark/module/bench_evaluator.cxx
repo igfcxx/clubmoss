@@ -1,12 +1,10 @@
 #include <omp.h>
 #include <thread>
 
-#include <fmt/core.h>
 #include <nanobench.h>
 #include <doctest/doctest.h>
 
 #include "../../src/module/evaluator/evaluator.hxx"
-#include "../../src/layout/layout_manager.hxx"
 
 static constexpr size_t NUM_SAMPLES = 1000;
 static constexpr size_t MAX_THREADS = 12;
@@ -28,26 +26,51 @@ TEST_SUITE("Bench multi-threading Evaluator::evaluate()") {
         return samples;
     }
 
-    auto baseline(ankerl::nanobench::Bench& bench) -> void {
+    auto evalMeasure(ankerl::nanobench::Bench& bench) -> void {
         const Samples samples = createSamples(manager);
         bench.run(
-            "baseline",
+            "measure() - baseline",
             [&]() -> void {
                 for (uz i = 0; i < NUM_SAMPLES; ++i) {
-                    evaluator.evaluate(*samples[i]);
+                    evaluator.measure(*samples[i]);
                 }
             }
         );
     }
 
-    auto benchOmpGuided(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
+    auto evalAnalyze(ankerl::nanobench::Bench& bench) -> void {
         const Samples samples = createSamples(manager);
         bench.run(
-            fmt::format("omp: guided ({:d})", num_threads).c_str(),
+            "analyze() - baseline",
+            [&]() -> void {
+                for (uz i = 0; i < NUM_SAMPLES; ++i) {
+                    evaluator.analyze(*samples[i]);
+                }
+            }
+        );
+    }
+
+    auto evalMeasureMt(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
+        const Samples samples = createSamples(manager);
+        bench.run(
+            fmt::format("measure() - {: >2d} threads", num_threads).c_str(),
             [&]() -> void {
                 #pragma omp parallel for schedule(guided) shared(samples) firstprivate(evaluator) lastprivate(evaluator) default (none)
                 for (uz i = 0; i < NUM_SAMPLES; ++i) {
-                    evaluator.evaluate(*samples[i]);
+                    evaluator.measure(*samples[i]);
+                }
+            }
+        );
+    }
+
+    auto evalAnalyzeMt(ankerl::nanobench::Bench& bench, const uz num_threads) -> void {
+        const Samples samples = createSamples(manager);
+        bench.run(
+            fmt::format("analyze() - {: >2d} threads", num_threads).c_str(),
+            [&]() -> void {
+                #pragma omp parallel for schedule(guided) shared(samples) firstprivate(evaluator) lastprivate(evaluator) default (none)
+                for (uz i = 0; i < NUM_SAMPLES; ++i) {
+                    evaluator.analyze(*samples[i]);
                 }
             }
         );
@@ -66,10 +89,16 @@ TEST_SUITE("Bench multi-threading Evaluator::evaluate()") {
          .minEpochIterations(100);
         b.performanceCounters(true);
 
-        baseline(b);
+        evalMeasure(b);
         for (uz i = 2; i <= MAX_THREADS; ++i) {
             omp_set_num_threads(static_cast<int>(i));
-            benchOmpGuided(b, i);
+            evalMeasureMt(b, i);
+        }
+
+        evalAnalyze(b);
+        for (uz i = 2; i <= MAX_THREADS; ++i) {
+            omp_set_num_threads(static_cast<int>(i));
+            evalAnalyzeMt(b, i);
         }
     }
 }
