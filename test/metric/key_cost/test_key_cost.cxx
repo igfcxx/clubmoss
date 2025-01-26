@@ -21,18 +21,19 @@ TEST_CASE("test metric::KeyCost") {
 
     SUBCASE("measure() and analyze()") {
         const fz cost_q1 = metric.measure(layout::baselines::QWERTY);
-        const fz cost_d1 = metric.measure(layout::baselines::DVORAK);
+        const fz cost_d1 = metric.measure(layout::baselines::NORMAN);
         CHECK(cost_q1 > cost_d1);
 
         const fz cost_q2 = metric.measure(layout::baselines::QWERTY);
-        const fz cost_d2 = metric.measure(layout::baselines::DVORAK);
+        const fz cost_d2 = metric.measure(layout::baselines::NORMAN);
         CHECK(cost_q2 == doctest::Approx(cost_q1).epsilon(0.01));
         CHECK(cost_d2 == doctest::Approx(cost_d1).epsilon(0.01));
 
-        const fz cost_q3 = metric.analyze(layout::baselines::QWERTY);
-        const fz cost_d3 = metric.analyze(layout::baselines::DVORAK);
+        const auto [cost_q3, flaws_q] = metric.analyze(layout::baselines::QWERTY);
+        const auto [cost_d3, flaws_d] = metric.analyze(layout::baselines::NORMAN);
         CHECK(cost_q3 == doctest::Approx(cost_q1).epsilon(0.01));
         CHECK(cost_d3 == doctest::Approx(cost_d1).epsilon(0.01));
+        CHECK_GT(flaws_q, flaws_d);
     }
 
     SUBCASE("show costs of random layouts") {

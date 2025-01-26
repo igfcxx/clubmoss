@@ -47,6 +47,7 @@ TEST_SUITE("Test preprocessor::Pool") {
                 max, pool.getBest(), pool.getCurr()
             );
         }
+        fmt::print("\n");
     }
 
     TEST_CASE("try different pool sizes") {
@@ -79,6 +80,7 @@ TEST_SUITE("Test preprocessor::Pool") {
                 );
             }
         }
+        fmt::print("\n");
     }
 }
 

@@ -3,26 +3,22 @@
 
 #include "dis_cost_data.hxx"
 
-namespace clubmoss {
-class Analyzer;
-}
-
 namespace clubmoss::metric {
 
 // 距离代价 //
 class DisCost {
 public:
-    explicit DisCost(dis_cost::Data &&data);
+    explicit DisCost(const dis_cost::Data &data);
 
     auto measure(const Layout&) -> fz;
-    auto analyze(const Layout&) -> fz;
-    auto collectStats(const Layout&) -> void;
+    auto analyze(const Layout&) -> std::pair<fz, uz>;
+    auto scan(const Layout&, Toml& stats) -> std::pair<fz, uz>;
 
     DisCost() = delete;
 
 protected:
     fz cost_{0.0}; // 代价分数
-    bool valid_{false}; // 是否有效
+    uz flaw_count_{0}; // 缺陷数
 
     std::array<fz, Finger::_size()> finger_move_{0.0}; // 手指移动距离
 
@@ -48,7 +44,7 @@ private:
     auto validateUsage() noexcept -> void;
     auto collectStats() noexcept -> void;
 
-    friend class clubmoss::Analyzer;
+    friend class clubmoss::Evaluator;
 };
 
 }

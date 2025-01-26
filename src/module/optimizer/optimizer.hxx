@@ -24,7 +24,6 @@ private:
     std::vector<Sample> best_samples_;
 
     auto copyBestSamples() -> void;
-    auto analyzeSamples() -> void;
     auto saveResults() -> void;
 };
 

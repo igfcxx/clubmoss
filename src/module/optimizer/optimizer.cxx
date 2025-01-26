@@ -28,7 +28,6 @@ auto Optimizer::run() -> void {
         ++curr_pool_;
     }
 
-    analyzeSamples();
     saveResults();
 }
 
@@ -41,17 +40,10 @@ auto Optimizer::copyBestSamples() -> void {
     }
 }
 
-auto Optimizer::analyzeSamples() -> void {
-    for (Sample& sample : best_samples_) {
-        analyzer_.analyze(sample);
-    }
-    pool_.sortSamples();
-}
-
 auto Optimizer::saveResults() -> void {
     std::ofstream os;
     for (uz i = 0; i < 5; ++i) {
-        const std::string stats = analyzer_.analyze(best_samples_[i]);
+        const std::string stats = pool_.evl_.evaluate(best_samples_[i]);
         const std::string sub_path = "cache/result/" + std::to_string(i + 1) + ".toml";
         os.open(Utils::absPath(sub_path), std::ios::out);
         os << stats;

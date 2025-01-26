@@ -1,7 +1,6 @@
 #include <omp.h>
 #include <thread>
 
-#include <fmt/core.h>
 #include <nanobench.h>
 #include <doctest/doctest.h>
 
@@ -10,6 +9,9 @@
 static constexpr size_t MAX_THREADS = 12;
 
 namespace clubmoss::optimizer::bench {
+
+// 可以暂时将 max_stagnation_epochs_ 和 MAX_EPOCHS 设置为相同的值,
+// 并注释掉updateMse(), 以控制收敛速度, 获得更稳定的结果.
 
 TEST_SUITE("Bench optimizer::Pool::search()") {
 

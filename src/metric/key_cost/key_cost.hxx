@@ -3,26 +3,22 @@
 
 #include "key_cost_data.hxx"
 
-namespace clubmoss {
-class Analyzer;
-}
-
 namespace clubmoss::metric {
 
 // 击键代价 //
 class KeyCost {
 public:
-    explicit KeyCost(key_cost::Data&& data);
+    explicit KeyCost(const key_cost::Data& data);
 
     auto measure(const Layout&) -> fz;
-    auto analyze(const Layout&) -> fz;
-    auto collectStats(const Layout&) -> void;
+    auto analyze(const Layout&) -> std::pair<fz, uz>;
+    auto scan(const Layout&, Toml& stats) -> std::pair<fz, uz>;
 
     KeyCost() = delete;
 
 protected:
     fz cost_{0.0}; // 代价
-    bool valid_{false}; // 是否有效
+    uz flaw_count_{0}; // 缺陷
 
     std::array<fz, KEY_COUNT> heat_map_{0.0}; // 热力图
     std::array<fz, ROW_COUNT> row_usage_{0.0}; // 行使用率
@@ -47,7 +43,7 @@ private:
     auto validateLayout() noexcept -> void;
     auto collectStats() noexcept -> void;
 
-    friend class clubmoss::Analyzer;
+    friend class clubmoss::Evaluator;
 };
 
 }

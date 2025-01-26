@@ -1,7 +1,6 @@
 #include <omp.h>
 #include <thread>
 
-#include <fmt/core.h>
 #include <nanobench.h>
 #include <doctest/doctest.h>
 
@@ -17,11 +16,9 @@ TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
 
     using LytVec = std::vector<std::unique_ptr<Layout>>;
 
-    static const std::string PATH = Utils::absPath("test/metric/seq_cost/data.toml");
-
-    const Data EN_DATA(toml::parse<toml::ordered_type_config>(PATH));
-
-    SeqCost sc_metric;
+    static const std::string D_PATH = Utils::absPath("test/metric/seq_cost/data.toml");
+    Data data(toml::parse<toml::ordered_type_config>(D_PATH));
+    SeqCost metric(std::move(data));
     layout::Manager manager;
 
     auto createLayouts(layout::Manager& manager) -> LytVec {
@@ -38,7 +35,7 @@ TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
             "baseline",
             [&]() -> void {
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    sc_metric.measure(*layouts[i], EN_DATA);
+                    metric.measure(*layouts[i]);
                 }
             }
         );
@@ -49,9 +46,9 @@ TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
         bench.run(
             fmt::format("omp: static ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(static) shared(layouts, EN_DATA) firstprivate(sc_metric) lastprivate(sc_metric) default (none)
+                #pragma omp parallel for schedule(static) shared(layouts) firstprivate(metric) lastprivate(metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    sc_metric.measure(*layouts[i], EN_DATA);
+                    metric.measure(*layouts[i]);
                 }
             }
         );
@@ -62,9 +59,9 @@ TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
         bench.run(
             fmt::format("omp: guided ({:d})", num_threads).c_str(),
             [&]() -> void {
-                #pragma omp parallel for schedule(guided) shared(layouts, EN_DATA) firstprivate(sc_metric) lastprivate(sc_metric) default (none)
+                #pragma omp parallel for schedule(guided) shared(layouts) firstprivate(metric) lastprivate(metric) default (none)
                 for (uz i = 0; i < NUM_LAYOUTS; ++i) {
-                    sc_metric.measure(*layouts[i], EN_DATA);
+                    metric.measure(*layouts[i]);
                 }
             }
         );
@@ -73,6 +70,12 @@ TEST_SUITE("Bench multi-threading metric::SeqCost::measure()") {
     TEST_CASE("bench metric::SeqCost::measure()") {
         REQUIRE_LE(MAX_THREADS, std::thread::hardware_concurrency());
         REQUIRE_GE(MAX_THREADS, 1);
+
+        SUBCASE("load config") {
+            static const Toml M_CFG = toml::parse(Utils::absPath("test/metric/metric.toml"));
+            static const Toml S_CFG = toml::parse(Utils::absPath("test/metric/score.toml"));
+            Config::loadCfg(M_CFG, S_CFG);
+        }
 
         ankerl::nanobench::Bench b;
 

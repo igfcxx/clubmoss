@@ -2,12 +2,12 @@
 
 namespace clubmoss::metric {
 
-DisCost::DisCost(dis_cost::Data&& data) : data_(std::move(data)) {}
+DisCost::DisCost(const dis_cost::Data& data) : data_(data) {}
 
 /**
- * @brief 计算移动代价
+ * @brief 计算距离代价
  * @param layout 输入的布局
- * @return 移动代价
+ * @return 距离代价
 */
 auto DisCost::measure(const Layout& layout) -> fz {
     calcMovementsOfEachFinger(layout);
@@ -16,26 +16,35 @@ auto DisCost::measure(const Layout& layout) -> fz {
 }
 
 /**
- * @brief 计算移动代价, 检查有效性
+ * @brief 计算距离代价, 检查有效性
  * @param layout 输入的布局
- * @return 移动代价
+ * @return 距离代价
 */
-auto DisCost::analyze(const Layout& layout) -> fz {
+auto DisCost::analyze(const Layout& layout) -> std::pair<fz, uz> {
     calcMovementsOfEachFinger(layout);
-    cost_ = Utils::sum(finger_move_);
     calcFingerUsage();
     validateUsage();
-    return cost_;
+    return {cost_, flaw_count_};
 }
 
 /**
  * @brief 记录统计数据
  * @param layout 输入的布局
+ * @param stats 待更新的统计数据
+ * @return 距离代价, 缺陷数
  */
-auto DisCost::collectStats(const Layout& layout) -> void {
+auto DisCost::scan(const Layout& layout, Toml& stats) -> std::pair<fz, uz> {
     calcMovementsOfEachFinger(layout);
     calcFingerUsage();
     collectStats();
+
+    stats.at("finger_move") = finger_move_;
+    stats.at("l_hand_move") = left_hand_usage_;
+    stats.at("r_hand_move") = right_hand_usage_;
+    stats.at("is_finger_dis_exceeded") = is_finger_overused_;
+    stats.at("is_hand_dis_unbalanced") = is_hand_unbalanced_;
+
+    return {cost_, flaw_count_};
 }
 
 auto DisCost::calcMovementsOfEachFinger(const Layout& layout) noexcept -> void {
@@ -116,42 +125,46 @@ auto DisCost::calcFingerUsage() noexcept -> void {
 }
 
 auto DisCost::validateUsage() noexcept -> void {
+    flaw_count_ = 0;
+
     // 检查每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
         if (finger_usage_[fin] > cfg_.max_finger_mov_[fin]) {
-            valid_ = false;
-            return;
+            ++flaw_count_;
         }
     }
+
     // 检查左右手使用是否均衡
     fz left_hand_usage = 0.0;
     for (uz i = 0; i < 5; ++i) { left_hand_usage += finger_usage_[i]; }
-    valid_ = std::abs(left_hand_usage - 0.5) <= cfg_.max_hand_mov_imbalance_;
+    const fz deviation = std::abs(left_hand_usage - 0.5);
+    if (deviation > cfg_.max_hand_mov_imbalance_) {
+        ++flaw_count_;
+    }
 }
 
 auto DisCost::collectStats() noexcept -> void {
+    flaw_count_ = 0;
+
     // 检查并记录每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
         is_finger_overused_[fin] = finger_usage_[fin] > cfg_.max_finger_mov_[fin];
+        if (is_finger_overused_[fin]) { ++flaw_count_; }
     }
 
-    // 记录左手使用率
+    // 记录左、右手使用率
     left_hand_usage_ = std::accumulate(
         &finger_usage_[Finger::LeftPinky],
         &finger_usage_[Finger::LeftThumb],
         0.0
     );
-    // 记录右手使用率
     right_hand_usage_ = 1.0 - left_hand_usage_;
 
     // 检查并记录左右手使用是否均衡
     const fz deviation = std::abs(left_hand_usage_ - 0.5);
     is_hand_unbalanced_ = deviation > cfg_.max_hand_mov_imbalance_;
-
-    // 记录布局整体是否有效
-    valid_ = not is_hand_unbalanced_;
-    for (const bool overused : is_finger_overused_) {
-        valid_ = valid_ and not overused;
+    if (is_hand_unbalanced_) {
+        ++flaw_count_;
     }
 }
 

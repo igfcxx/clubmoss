@@ -1,4 +1,3 @@
-#include <fmt/core.h>
 #include <nanobench.h>
 #include <doctest/doctest.h>
 

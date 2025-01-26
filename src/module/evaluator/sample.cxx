@@ -14,30 +14,32 @@ auto Sample::calcLoss() -> void {
 
     loss_ = 0.0;
     for (uz i = 0; i < TASK_COUNT; ++i) {
-        if (use_ols_) {
-            loss_ += scaled_costs_[i] * scaled_costs_[i] * weights_[i];
-        } else {
-            loss_ += scaled_costs_[i] * weights_[i];
-        }
+        loss_ += scaled_costs_[i] * weights_[i];
     }
 }
 
 auto Sample::calcLossWithPenalty() -> void {
     calcLoss();
+    flaws_ = 0;
     for (uz i = 0; i < TASK_COUNT; ++i) {
-        if (not valid_[i]) {
-            loss_ += 0.05;
-        }
+        flaws_ += flaw_cnt_[i];
     }
+    loss_ += 0.01 * flaws_;
 }
 
 auto Sample::getLoss() const noexcept -> fz {
     return loss_;
 }
 
-auto Sample::loadCfg(const Toml& score_cfg, const Toml& status) -> void {
-    use_ols_ = score_cfg.at("use_ols").as_boolean();
+auto Sample::getRank() const noexcept -> uz {
+    return rank_;
+}
 
+auto Sample::getFlaws() const noexcept -> uz {
+     return flaws_;
+}
+
+auto Sample::loadCfg(const Toml& score_cfg, const Toml& status) -> void {
     weights_.fill(0.0);
     for (const Language lang : Language::_values()) {
         for (const MetricId metric : MetricId::_values()) {
@@ -46,7 +48,6 @@ auto Sample::loadCfg(const Toml& score_cfg, const Toml& status) -> void {
 
             const fz w = fetchWeight(score_cfg.at("weights").at(lang_name).at(metric_name));
             const uz i = metric * Language::_size() + lang;
-            enabled_[i] = w != 0.0;
             weights_[i] = w;
         }
     }

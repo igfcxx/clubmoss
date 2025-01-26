@@ -2,7 +2,7 @@
 
 namespace clubmoss::metric {
 
-KeyCost::KeyCost(key_cost::Data&& data) : data_(std::move(data)) {}
+KeyCost::KeyCost(const key_cost::Data& data) : data_(data) {}
 
 /**
  * @brief 计算击键代价
@@ -26,20 +26,32 @@ auto KeyCost::measure(const Layout& layout) -> fz {
  * @param layout 输入的布局
  * @return 击键代价
  */
-auto KeyCost::analyze(const Layout& layout) -> fz {
+auto KeyCost::analyze(const Layout& layout) -> std::pair<fz, uz> {
     calcFingerUsage(layout);
     validateLayout();
-    return cost_;
+    return {cost_, flaw_count_};
 }
 
 /**
  * @brief 记录统计数据
  * @param layout 输入的布局
+ * @param stats 待更新的统计数据
+ * @return 击键代价, 缺陷数
  */
-auto KeyCost::collectStats(const Layout& layout) -> void {
+auto KeyCost::scan(const Layout& layout, Toml& stats) -> std::pair<fz, uz> {
     calcFingerUsage(layout);
-    analyze(layout);
     collectStats();
+
+    stats.at("heat_map") = heat_map_;
+    stats.at("row_usage") = row_usage_;
+    stats.at("col_usage") = col_usage_;
+    stats.at("l_hand_usage") = left_hand_usage_;
+    stats.at("r_hand_usage") = right_hand_usage_;
+    stats.at("is_finger_hit_exceeded") = is_finger_overused_;
+    stats.at("is_hand_hit_unbalanced") = is_hand_unbalanced_;
+    stats.at("similarity") = similarity_;
+
+    return {cost_, flaw_count_};
 }
 
 auto is_same_finger = [](const Col col1, const Col col2) -> bool {
@@ -99,43 +111,45 @@ auto KeyCost::calcFingerUsage(const Layout& layout) noexcept -> void {
 }
 
 auto KeyCost::validateLayout() noexcept -> void {
+    flaw_count_ = 0;
     // 检查每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
         if (finger_usage_[fin] > cfg_.max_finger_use_[fin]) {
-            valid_ = false;
-            return;
+            ++flaw_count_;
         }
     }
     // 检查左右手使用是否均衡
     fz left_hand_usage = 0.0;
     for (uz i = 0; i < 5; ++i) { left_hand_usage += finger_usage_[i]; }
-    valid_ = std::abs(left_hand_usage - 0.5) <= cfg_.max_hand_use_imbalance_;
+    const fz deviation = std::abs(left_hand_usage - 0.5);
+    if (deviation > cfg_.max_hand_use_imbalance_) {
+        ++flaw_count_;
+    }
 }
 
 auto KeyCost::collectStats() noexcept -> void {
-    valid_ = true;
+    flaw_count_ = 0;
 
     // 检查并记录每个手指使用率是否超过限制
     for (const Finger fin : Finger::_values()) {
         is_finger_overused_[fin] = finger_usage_[fin] > cfg_.max_finger_use_[fin];
-        if (is_finger_overused_[fin]) { valid_ = false; }
+        if (is_finger_overused_[fin]) { ++flaw_count_; }
     }
 
-    // 记录左手使用率
+    // 记录左、手使用率
     left_hand_usage_ = std::accumulate(
         &finger_usage_[Finger::LeftPinky],
         &finger_usage_[Finger::LeftThumb],
         0.0
     );
-    // 记录右手使用率
     right_hand_usage_ = 1.0 - left_hand_usage_;
 
     // 检查并记录左右手使用是否均衡
     const fz deviation = std::abs(left_hand_usage_ - 0.5);
     is_hand_unbalanced_ = deviation > cfg_.max_hand_use_imbalance_;
-
-    // 记录布局整体是否有效
-    valid_ = valid_ and not is_hand_unbalanced_;
+    if (is_hand_unbalanced_) {
+        ++flaw_count_;
+    }
 }
 
 }

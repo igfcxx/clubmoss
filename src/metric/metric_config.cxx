@@ -3,7 +3,7 @@
 namespace clubmoss::metric {
 
 Config::Config() {
-    updatePainLevels();
+    calcNgramCosts();
     calcDistance();
 }
 
@@ -25,10 +25,30 @@ auto Config::costOf(const Bigram& bigram, const Layout& layout) const -> uz {
     const Cap cap2 = bigram.caps[1];
     const Pos pos1 = layout.getPos(cap1);
     const Pos pos2 = layout.getPos(cap2);
-    return pain_levels_[index(pos1, pos2)];
+    return ngram_costs_[index(pos1, pos2)];
 }
 
 auto Config::costOf(const Trigram& trigram, const Layout& layout) const -> uz {
+    const Cap cap1 = trigram.caps[0];
+    const Cap cap2 = trigram.caps[1];
+    const Cap cap3 = trigram.caps[2];
+    const Pos pos1 = layout.getPos(cap1);
+    const Pos pos2 = layout.getPos(cap2);
+    const Pos pos3 = layout.getPos(cap3);
+    const uz lvl1 = ngram_costs_[index(pos1, pos2)];
+    const uz lvl2 = ngram_costs_[index(pos2, pos3)];
+    return std::max(lvl1, lvl2);
+}
+
+auto Config::painLevelOf(const Bigram& bigram, const Layout& layout) const -> uz {
+    const Cap cap1 = bigram.caps[0];
+    const Cap cap2 = bigram.caps[1];
+    const Pos pos1 = layout.getPos(cap1);
+    const Pos pos2 = layout.getPos(cap2);
+    return pain_levels_[index(pos1, pos2)];
+}
+
+auto Config::painLevelOf(const Trigram& trigram, const Layout& layout) const -> uz {
     const Cap cap1 = trigram.caps[0];
     const Cap cap2 = trigram.caps[1];
     const Cap cap3 = trigram.caps[2];
@@ -47,7 +67,7 @@ auto Config::loadCfg(const Toml& metric_cfg, const Toml& score_cfg) -> void {
     instance.loadKeyCostCfgs(metric_cfg.at("key_cost"));
     instance.loadDisCostCfgs(metric_cfg.at("dis_cost"));
     instance.loadSeqCostCfgs(metric_cfg.at("seq_cost"));
-    instance.updatePainLevels();
+    instance.calcNgramCosts();
     instance.calcDistance();
 }
 
@@ -79,10 +99,7 @@ auto Config::loadPainLevelLimits(const Toml& cfg) -> void {
 
     const Toml& apl_node = cfg.at("allow_pain_level");
     const uz allow_pain_level = fetchInt(apl_node, "allow_pain_level", 2, 4);
-    max_pain_lvl_cost_ = cost_of_pain_level_[allow_pain_level];
-
-    const Toml& abn_node = cfg.at("allow_bad_ngrams");
-    max_bad_ngram_count_ = fetchInt(abn_node, "allow_bad_ngrams", 1, 3);
+    max_ngram_cost_ = cost_of_pain_level_[allow_pain_level];
 }
 
 auto Config::loadKeyCostCfgs(const Toml& cfg) -> void {
@@ -130,12 +147,12 @@ auto Config::loadSeqCostCfgs(const Toml& cfg) -> void {
     }
 }
 
-auto Config::updatePainLevels() -> void {
+auto Config::calcNgramCosts() -> void {
     for (const Pos pos1 : POS_SET) {
         for (const Pos pos2 : POS_SET) {
             const uz idx = index(pos1, pos2);
             const uz lvl = pain_levels_[idx];
-            pain_levels_[idx] = cost_of_pain_level_[lvl];
+            ngram_costs_[idx] = cost_of_pain_level_[lvl];
         }
     }
 }

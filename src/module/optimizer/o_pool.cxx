@@ -47,7 +47,7 @@ auto Pool::reinitAndEvaluateSamples() noexcept -> void {
     #pragma omp parallel for schedule(guided) shared(samples_) firstprivate(mgr_, evl_) lastprivate(mgr_, evl_) default (none)
     for (uz i = 0; i < size_; ++i) {
         mgr_.reinit(*samples_[i]);
-        evl_.evaluate(*samples_[i]);
+        evl_.analyze(*samples_[i]);
     }
 }
 
@@ -55,15 +55,7 @@ auto Pool::updateAndEvaluateSamples() noexcept -> void {
     #pragma omp parallel for schedule(guided) shared(samples_) firstprivate(mgr_, evl_) lastprivate(mgr_, evl_) default (none)
     for (uz i = half_; i < size_; ++i) {
         mgr_.mutate(*samples_[i], *samples_[i - half_]);
-        evl_.evaluate(*samples_[i]);
-    }
-}
-
-auto Pool::checkAllSamples() noexcept -> void {
-    for (auto& sample : samples_) {
-        if (not evl_.check(*sample)) {
-
-        }
+        evl_.analyze(*samples_[i]);
     }
 }
 
@@ -79,7 +71,7 @@ auto Pool::sortSamples() -> void {
 auto Pool::updateMse() -> void {
     const uz new_value = static_cast<uz>(
         static_cast<fz>(max_stagnation_epochs_) * ALPHA +
-        static_cast<fz>(best_epoch_) * 0.5 * (1.0 - ALPHA)
+        static_cast<fz>(best_epoch_) * (1.0 - ALPHA)
     );
     max_stagnation_epochs_ = std::clamp(new_value, 30uz, 300uz);
 }

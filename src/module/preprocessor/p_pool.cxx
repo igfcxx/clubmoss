@@ -68,7 +68,7 @@ auto Pool::reinitAndEvaluateSamples(const uz task_id) noexcept -> void {
     #pragma omp parallel for schedule(guided) shared(samples_, task_id) firstprivate(mgr_, evl_) lastprivate(mgr_, evl_) default (none)
     for (uz i = 0; i < size_; ++i) {
         mgr_.reinit(*samples_[i]);
-        evl_.calcCost(*samples_[i], task_id);
+        evl_.measure(*samples_[i], task_id);
     }
 }
 
@@ -76,7 +76,7 @@ auto Pool::updateAndEvaluateSamples(const uz task_id) noexcept -> void {
     #pragma omp parallel for schedule(guided) shared(samples_, task_id) firstprivate(mgr_, evl_) lastprivate(mgr_, evl_) default (none)
     for (uz i = half_; i < size_; ++i) {
         mgr_.mutate(*samples_[i], *samples_[i - half_]);
-        evl_.calcCost(*samples_[i], task_id);
+        evl_.measure(*samples_[i], task_id);
     }
 }
 
