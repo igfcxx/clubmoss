@@ -11,11 +11,11 @@ SeqCost::SeqCost(const seq_cost::Data& data) : data_(data) {}
 */
 auto SeqCost::measure(const Layout& layout) -> fz {
     cost_ = 0.0;
-    for (const Bigram& gm : data_.bigram_records_) {
-        cost_ += cfg_.costOf(gm, layout) * gm.f;
+    for (const Bigram& bigram : data_.bigram_records_) {
+        cost_ += static_cast<fz>(cfg_.costOf(bigram, layout)) * bigram.frequencty;
     }
-    for (const Trigram& gm : data_.trigram_records_) {
-        cost_ += cfg_.costOf(gm, layout) * gm.f;
+    for (const Trigram& trigram : data_.trigram_records_) {
+        cost_ += static_cast<fz>(cfg_.costOf(trigram, layout)) * trigram.frequencty;
     }
     return cost_;
 }
@@ -31,20 +31,20 @@ auto SeqCost::analyze(const Layout& layout) -> std::pair<fz, uz> {
     // 考察 2-gram 记录
     for (const auto& bigram : data_.bigram_records_ | std::views::take(cfg_.ngrams_to_test_)) {
         const uz cost = cfg_.costOf(bigram, layout);
+        cost_ += static_cast<fz>(cost) * bigram.frequencty;
         if (cost > cfg_.max_ngram_cost_) { ++flaw_count_; }
-        cost_ += cost * bigram.f;
     }
     for (const auto& bigram : data_.bigram_records_ | std::views::drop(cfg_.ngrams_to_test_)) {
-        cost_ += cfg_.costOf(bigram, layout) * bigram.f;
+        cost_ += static_cast<fz>(cfg_.costOf(bigram, layout)) * bigram.frequencty;
     }
     // 考察 3-gram 记录
     for (const auto& trigram : data_.trigram_records_ | std::views::take(cfg_.ngrams_to_test_)) {
         const uz cost = cfg_.costOf(trigram, layout);
+        cost_ += static_cast<fz>(cost) * trigram.frequencty;
         if (cost > cfg_.max_ngram_cost_) { ++flaw_count_; }
-        cost_ += cost * trigram.f;
     }
     for (const auto& trigram : data_.trigram_records_ | std::views::drop(cfg_.ngrams_to_test_)) {
-        cost_ += cfg_.costOf(trigram, layout) * trigram.f;
+        cost_ += static_cast<fz>(cfg_.costOf(trigram, layout)) * trigram.frequencty;
     }
     return {cost_, flaw_count_};
 }
@@ -63,24 +63,24 @@ auto SeqCost::scan(const Layout& layout, Toml& stats) -> std::pair<fz, uz> {
     // 考察 2-gram 记录
     for (const auto& bigram : data_.bigram_records_ | std::views::take(cfg_.ngrams_to_test_)) {
         const uz cost = cfg_.costOf(bigram, layout);
-        const uz pain = cfg_.painLevelOf(bigram, layout);
+        cost_ += static_cast<fz>(cost) * bigram.frequencty;
         if (cost > cfg_.max_ngram_cost_) { ++flaw_count_; }
+        const uz pain = cfg_.painLevelOf(bigram, layout);
         pain_level_of_top_2_grams_.emplace_back(pain);
-        cost_ += cost * bigram.f;
     }
     for (const auto& bigram : data_.bigram_records_ | std::views::drop(cfg_.ngrams_to_test_)) {
-        cost_ += cfg_.costOf(bigram, layout) * bigram.f;
+        cost_ += static_cast<fz>(cfg_.costOf(bigram, layout)) * bigram.frequencty;
     }
     // 考察 3-gram 记录
     for (const auto& trigram : data_.trigram_records_ | std::views::take(cfg_.ngrams_to_test_)) {
         const uz cost = cfg_.costOf(trigram, layout);
-        const uz pain = cfg_.painLevelOf(trigram, layout);
+        cost_ += static_cast<fz>(cost) * trigram.frequencty;
         if (cost > cfg_.max_ngram_cost_) { ++flaw_count_; }
+        const uz pain = cfg_.painLevelOf(trigram, layout);
         pain_level_of_top_3_grams_.emplace_back(pain);
-        cost_ += cost * trigram.f;
     }
     for (const auto& trigram : data_.trigram_records_ | std::views::drop(cfg_.ngrams_to_test_)) {
-        cost_ += cfg_.costOf(trigram, layout) * trigram.f;
+        cost_ += static_cast<fz>(cfg_.costOf(trigram, layout)) * trigram.frequencty;
     }
 
     stats.at("2_gram_pain_levels") = pain_level_of_top_2_grams_;

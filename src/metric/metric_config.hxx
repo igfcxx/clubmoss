@@ -8,20 +8,20 @@ namespace clubmoss::metric {
 template <uz N> requires (N <= 4)
 struct Ngram final {
     std::array<Cap, N> caps{0};
-    fz f{0.0};
+    fz frequencty{0.0};
 
     Ngram() = default;
 
     explicit Ngram(const std::pair<const std::string, const Toml&>& node)
-        : f(node.second.as_floating()) {
+        : frequencty(node.second.as_floating()) {
         for (const auto& [c, cap] : std::views::zip(node.first, caps)) {
             cap = static_cast<Cap>(std::toupper(c));
         }
     }
 
     auto operator<=>(const Ngram& other) const noexcept -> std::weak_ordering {
-        if (this->f > other.f) { return std::weak_ordering::greater; }
-        if (this->f < other.f) { return std::weak_ordering::less; }
+        if (this->frequencty > other.frequencty) { return std::weak_ordering::greater; }
+        if (this->frequencty < other.frequencty) { return std::weak_ordering::less; }
         return std::weak_ordering::equivalent;
     }
 };

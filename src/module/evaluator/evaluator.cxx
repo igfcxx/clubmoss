@@ -58,9 +58,9 @@ auto Evaluator::measure(Sample& sample) const noexcept -> void {
 auto Evaluator::analyze(Sample& sample) const noexcept -> void {
     for (uz i = 0; i < metrics_.size(); ++i) {
         if (enabled_[i]) {
-            const auto pair = metrics_[i].analyze(sample);
-            sample.raw_costs_[i] = pair.first;
-            sample.flaw_cnt_[i] = pair.second;
+            const auto [fst, snd] = metrics_[i].analyze(sample);
+            sample.raw_costs_[i] = fst;
+            sample.flaw_cnt_[i] = snd;
         } else {
             sample.raw_costs_[i] = 0.0;
             sample.flaw_cnt_[i] = 0;
@@ -74,18 +74,10 @@ auto Evaluator::evaluate(Sample& sample) const noexcept -> std::string {
         {"heat_map", toml::array{}},
         {"row_usage", toml::array{}},
         {"col_usage", toml::array{}},
-        {"l_hand_usage", toml::ordered_table{}},
-        {"r_hand_usage", toml::ordered_table{}},
-        {"is_finger_hit_exceeded", toml::array{}},
-        {"is_hand_hit_unbalanced", toml::ordered_table{}},
-        {"finger_move", toml::array{}},
-        {"l_hand_move", toml::ordered_table{}},
-        {"r_hand_move", toml::ordered_table{}},
-        {"is_finger_dis_exceeded", toml::array{}},
-        {"is_hand_dis_unbalanced", toml::ordered_table{}},
+        {"finger_movement", toml::array{}},
         {"2_gram_pain_levels", toml::array{}},
         {"3_gram_pain_levels", toml::array{}},
-        {"similarity", toml::ordered_table{}},
+        {"qwerty_similarity", toml::ordered_table{}},
     };
 
     Toml zh_stats(lang_stats), en_stats(lang_stats);
@@ -94,13 +86,13 @@ auto Evaluator::evaluate(Sample& sample) const noexcept -> std::string {
         for (const Language lang : Language::_values()) {
             const uz i = Utils::taskIdOf(metric, lang);
             if (lang._value == Language::Chinese) {
-                const auto pair = metrics_[i].scan(sample, zh_stats);
-                sample.raw_costs_[i] = pair.first;
-                sample.flaw_cnt_[i] = pair.second;
+                const auto [fst, snd] = metrics_[i].scan(sample, zh_stats);
+                sample.raw_costs_[i] = fst;
+                sample.flaw_cnt_[i] = snd;
             } else if (lang._value == Language::English) {
-                const auto pair = metrics_[i].scan(sample, en_stats);
-                sample.raw_costs_[i] = pair.first;
-                sample.flaw_cnt_[i] = pair.second;
+                const auto [fst, snd] = metrics_[i].scan(sample, en_stats);
+                sample.raw_costs_[i] = fst;
+                sample.flaw_cnt_[i] = snd;
             }
         }
     }
@@ -109,15 +101,13 @@ auto Evaluator::evaluate(Sample& sample) const noexcept -> std::string {
     const Toml stats(
         toml::ordered_table{
             {"keys", sample.toString()},
+            {"name", sample.name_},
             {"loss", sample.loss_},
-            {"flaws", sample.flaws_},
+            {"flaws", sample.flaw_cnt_},
             {"costs", sample.scaled_costs_},
             {"raw_costs", sample.raw_costs_},
-            {"flaw_cnt", sample.flaw_cnt_},
-            {"weights", Sample::weights_},
-            {"enabled", enabled_},
-            {"zh_stats", zh_stats},
-            {"en_stats", en_stats},
+            {"chinese", zh_stats},
+            {"english", en_stats},
         }
     );
     return toml::format(stats);

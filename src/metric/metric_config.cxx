@@ -95,10 +95,10 @@ auto Config::loadFingerHandLimits(const Toml& cfg) -> void {
 
 auto Config::loadPainLevelLimits(const Toml& cfg) -> void {
     const Toml& tk_node = cfg.at("test_top_k_ngrams");
-    ngrams_to_test_ = fetchInt(tk_node, "test_top_k_ngrams", 3, 25);
+    ngrams_to_test_ = fetchInt(tk_node, "test_top_k_ngrams", 5, 25);
 
     const Toml& apl_node = cfg.at("allow_pain_level");
-    const uz allow_pain_level = fetchInt(apl_node, "allow_pain_level", 2, 4);
+    const uz allow_pain_level = fetchInt(apl_node, "allow_pain_level", 2, 5);
     max_ngram_cost_ = cost_of_pain_level_[allow_pain_level];
 }
 

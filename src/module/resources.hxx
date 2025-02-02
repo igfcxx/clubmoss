@@ -19,12 +19,12 @@ class Resources {
     inline static const Toml METRIC_CONFIG = parse("conf/metric.toml");
     inline static const Toml SCORE_CONFIG  = parse("conf/score.toml");
 
-    inline static const Toml ZH_CHAR_FREQ = parse("cache/freq/chinese/char.toml");
-    inline static const Toml EN_CHAR_FREQ = parse("cache/freq/english/char.toml");
-    inline static const Toml ZH_PAIR_FREQ = parse("cache/freq/chinese/pair.toml");
-    inline static const Toml EN_PAIR_FREQ = parse("cache/freq/english/pair.toml");
-    inline static const Toml ZH_SEQ_FREQ  = parse("cache/freq/chinese/seq.toml");
-    inline static const Toml EN_SEQ_FREQ  = parse("cache/freq/english/seq.toml");
+    inline static const Toml ZH_CHAR_FREQ = parse("data/chinese/char.toml");
+    inline static const Toml EN_CHAR_FREQ = parse("data/english/char.toml");
+    inline static const Toml ZH_PAIR_FREQ = parse("data/chinese/pair.toml");
+    inline static const Toml EN_PAIR_FREQ = parse("data/english/pair.toml");
+    inline static const Toml ZH_SEQ_FREQ  = parse("data/chinese/seq.toml");
+    inline static const Toml EN_SEQ_FREQ  = parse("data/english/seq.toml");
     // @formatter:on //
 
 public:

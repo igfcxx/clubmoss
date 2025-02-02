@@ -20,13 +20,13 @@ protected:
     fz cost_{0.0}; // 代价分数
     uz flaw_count_{0}; // 缺陷数
 
-    std::vector<uz> pain_level_of_top_2_grams_; // 最常用的 2-gram 的不适程度
-    std::vector<uz> pain_level_of_top_3_grams_; // 最常用的 3-gram 的不适程度
+    std::vector<uz> pain_level_of_top_2_grams_{}; // 最常用的 2-gram 的不适程度
+    std::vector<uz> pain_level_of_top_3_grams_{}; // 最常用的 3-gram 的不适程度
+
+    seq_cost::Data data_;
 
 private:
     inline static Config& cfg_ = Config::getInstance();
-
-    seq_cost::Data data_;
 
     friend class clubmoss::Evaluator;
 };
