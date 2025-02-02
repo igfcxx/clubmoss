@@ -1,0 +1,17 @@
+[weights.chinese]
+key_cost = 1.0
+dis_cost = 1.0
+seq_cost = 1.0
+
+[weights.english]
+key_cost = 1.0
+dis_cost = 1.0
+seq_cost = 1.0
+
+[limits]
+max_finger_use = [0.12, 0.16, 0.25, 0.25, inf, inf, 0.25, 0.25, 0.16, 0.12] # 每个手指的最大使用量（击键频率）
+max_finger_mov = [0.12, 0.16, 0.25, 0.25, inf, inf, 0.25, 0.25, 0.16, 0.12] # 每个手指的最大使用量（移动距离）
+max_hand_use_imbalance = 0.025 # 左右手使用量的最大不平衡度（击键频率）
+max_hand_mov_imbalance = 0.050 # 左右手使用量的最大不平衡度（移动距离）
+test_top_k_ngrams = 10 # 考察的最常用的K个组合的不适程度是否超过阈值
+allow_pain_level = 3 # 不适程度阈值
