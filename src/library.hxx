@@ -1,6 +1,9 @@
 #ifndef CLUBMOSS_LIBRARY_HXX
 #define CLUBMOSS_LIBRARY_HXX
 
+#include "module/preprocessor/preprocessor.hxx"
+#include "module/optimizer/optimizer.hxx"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,7 +16,11 @@ extern "C" {
 #    define _export
 #endif
 
-_export int add(int a, int b);
+_export int search(int threads);
+
+_export int preprocess(int threads);
+
+_export void set_log_callback(void (*callback)(const char*));
 
 #ifdef __cplusplus
 }

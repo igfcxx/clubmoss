@@ -2,10 +2,7 @@
 #define CLUBMOSS_EVALUATOR_HXX
 
 #include "sample.hxx"
-#include "../../common/resources.hxx"
-#include "../../metric/key_cost/key_cost.hxx"
-#include "../../metric/dis_cost/dis_cost.hxx"
-#include "../../metric/seq_cost/seq_cost.hxx"
+#include "../resources.hxx"
 
 namespace clubmoss {
 

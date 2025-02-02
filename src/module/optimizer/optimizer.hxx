@@ -7,7 +7,7 @@ namespace clubmoss {
 
 class Optimizer {
 public:
-    auto run() -> void;
+    auto search() -> void;
 
 private:
     optimizer::Pool pool_{};
@@ -16,14 +16,16 @@ private:
     uz best_pool_{0};
 
     uz stagnation_pools_{0};
-    uz max_stagnation_pools_{20};
+    uz max_stagnation_pools_{25};
 
     static constexpr uz MAX_POOLS{50};
 
     fz best_loss_{};
-    std::vector<Sample> best_samples_;
+
+    std::vector<Sample> best_samples_{};
 
     auto copyBestSamples() -> void;
+    auto saveBaselines() -> void;
     auto saveResults() -> void;
 };
 

@@ -71,10 +71,10 @@ namespace layout::baselines {
     static const auto QWERTY   = Baseline("QWERTYUIOPASDFGHJKL;ZXCVBNM,./", "QWERTY");
     static const auto DVORAK   = Baseline(";,.PYFGCRLAOEUIDHTNS/QJKXBMWVZ", "Dvorak");
     static const auto COLEMAK  = Baseline("QWFPGJLUY;ARSTDHNEIOZXCVBKM,./", "Colemak");
-    static const auto MINIMAK  = Baseline("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./", "Miniak");   // 12-keys 版本
+    static const auto MINIMAK  = Baseline("QWDFKYUIL;ASTRGHNEOPZXCVBJM,./", "Minimak");
     static const auto KLAUSLER = Baseline("K,UYPWLMFCOAEIDRNTHSQ./;ZXVGBJ", "Klausler");
-    static const auto CAPEWELL = Baseline(".YWDFJPLUQAERSGBTNIOXZCV;KMH,/", "Capewell"); // close-keys 版本
-    static const auto QGMLWY   = Baseline("QGMLWYFUB;DSTNRIAEOHZXCVJKP,./", "QGMLWY");   // 源于 Carpalx 项目
+    static const auto CAPEWELL = Baseline(".YWDFJPLUQAERSGBTNIOXZCV;KMH,/", "Capewell");
+    static const auto QGMLWY   = Baseline("QGMLWYFUB;DSTNRIAEOHZXCVJKP,./", "QGMLWY");
     static const auto ASSET    = Baseline("QWFGJYPUL;ASETDHNIORZXCVBKM,./", "Asset");
     static const auto ARENSITO = Baseline("QL.P/;FUDKARENBGSITOZW,HJVCYMX", "Arensito");
     static const auto WORKMAN  = Baseline("QDRWBJFUP;ASHTGYNEOIZXMCVKL,./", "Workman");

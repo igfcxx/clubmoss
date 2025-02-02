@@ -1,10 +1,10 @@
-#include "o_pool.hxx"
 #include <omp.h>
+#include "o_pool.hxx"
 
 namespace clubmoss::optimizer {
 
 Pool::Pool() {
-    samples_.reserve(9600);
+    samples_.reserve(4800);
     for (uz i = 0; i < size_; ++i) {
         samples_.emplace_back(std::make_unique<Sample>(mgr_.create()));
     }
@@ -27,11 +27,14 @@ auto Pool::search() noexcept -> fz {
             break;
         }
         ++curr_epoch_;
+
+        if (curr_epoch_ % 5 == 0) {
+            unique();
+        }
+
         updateAndEvaluateSamples();
         sortSamples();
     }
-
-    for (uz i = 0; i < 10; ++i) {}
 
     updateMse();
     spdlog::debug(
@@ -66,6 +69,16 @@ auto Pool::sortSamples() -> void {
             return lhs->getLoss() < rhs->getLoss();
         }
     );
+}
+
+auto Pool::unique() -> void {
+    for (uz i = 0; i < half_ - 1; ++i) {
+        if (samples_[i].get() == samples_[i + 1].get()) {
+            mgr_.reinit(*samples_[i]);
+            evl_.analyze(*samples_[i]);
+        }
+    }
+    sortSamples();
 }
 
 auto Pool::updateMse() -> void {

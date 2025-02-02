@@ -16,6 +16,7 @@
 #include <filesystem>
 
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/base_sink.h>
 
 #include "types.hxx"
 
@@ -23,7 +24,7 @@ namespace clubmoss {
 
 using Toml = toml::basic_value<toml::ordered_type_config>;
 
-static constexpr uz ROW_COUNT = 3;  // 行数
+static constexpr uz ROW_COUNT = 3; // 行数
 static constexpr uz COL_COUNT = 10; // 列数
 static constexpr uz KEY_COUNT = 30; // 按键数
 
@@ -52,10 +53,19 @@ class Utils final {
 public:
     static auto absPath(std::string_view sub_path) -> std::string;
 
+    static auto colOf(Pos) noexcept -> Col;
+    static auto rowOf(Pos) noexcept -> Row;
+    static auto posOf(Row, Col) noexcept -> Pos;
+
+    static auto taskIdOf(MetricId, Language) noexcept -> uz;
+
+    static auto toSnakeCase(std::string_view pascal_case) -> std::string;
+
     template <typename INT> requires std::is_integral_v<INT>
     static auto isLegalCap(const INT cap) noexcept -> bool {
-        return (cap >= 'A' and cap <= 'Z') or cap == ',' or
-                cap == '.' or cap == ';' or cap == '/';
+        return (cap >= 'A' and cap <= 'Z') or
+                cap == ',' or cap == '.' or
+                cap == ';' or cap == '/';
     }
 
     template <typename INT> requires std::is_integral_v<INT>
@@ -73,28 +83,44 @@ public:
         return 0 <= row and row < ROW_COUNT;
     }
 
-    static auto posOf(Row, Col) noexcept -> Pos;
-    static auto colOf(Pos) noexcept -> Col;
-    static auto rowOf(Pos) noexcept -> Row;
-
-    static auto taskIdOf(MetricId, Language) noexcept -> uz;
-
     template <typename Container>
     static auto sum(const Container& container) -> typename Container::value_type {
         return std::accumulate(container.begin(), container.end(), static_cast<typename Container::value_type>(0.0));
     }
 
-    static auto toSnakeCase(std::string_view pascal_case) -> std::string;
-
 private:
-    using FileNames     = std::vector<std::string>;
+    using FileNames = std::vector<std::string>;
     using RequiredFiles = std::pair<std::string, FileNames>;
     inline static const std::vector<RequiredFiles> REQUIRED_FILES{
-        {"conf", {"layout.toml"}},
+        {"conf", {"layout.toml", "metric.toml", "score.toml"}},
+        {"data/chinese", {"char.toml", "pair.toml", "seq.toml"}},
+        {"data/english", {"char.toml", "pair.toml", "seq.toml"}},
+        {"cache", {"status.toml"}},
     };
 
     static auto searchForProjectRoot() -> std::string;
     static auto findAllRequiredFiles(const std::filesystem::path& path) -> bool;
+};
+
+class LogSink final
+        : public spdlog::sinks::base_sink<std::mutex> {
+public:
+    using LogCallback = std::function<void(const std::string&)>;
+
+    explicit LogSink(LogCallback callback) : callback_(std::move(callback)) {}
+
+protected:
+    void sink_it_(const spdlog::details::log_msg& msg) override {
+        spdlog::memory_buf_t formatted;
+        formatter_->format(msg, formatted);
+        const std::string log_message = fmt::to_string(formatted);
+        if (callback_) { callback_(log_message); }
+    }
+
+    void flush_() override {}
+
+private:
+    LogCallback callback_;
 };
 
 }

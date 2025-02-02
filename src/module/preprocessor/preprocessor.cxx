@@ -99,13 +99,9 @@ auto Preprocessor::maximizeCosts(const MetricId metric, const Language language)
 }
 
 auto Preprocessor::estimateSize() -> void {
-    static constexpr std::array<uz, 4> OPTIONAL_SIZES{
-        2400, 1200, 600, 300
-    };
-
     best_size_ = 4800;
     const fz best_loss = tryPoolSize(4800);
-    for (const uz size : OPTIONAL_SIZES) {
+    for (const uz size : {2400, 1200, 600, 300}) {
         const fz loss = tryPoolSize(size);
         if (loss > best_loss) return;
         best_size_ = size;
@@ -116,7 +112,7 @@ auto Preprocessor::estimateSize() -> void {
 auto Preprocessor::tryPoolSize(const uz pool_size) -> fz {
     best_loss_ = std::numeric_limits<fz>::max();
     curr_pool_ = best_pool_ = 0;
-    max_stagnation_pools_ = 20;
+    max_stagnation_pools_ = 15;
     pool_.setSize(pool_size);
 
     spdlog::info("Testing pool of {} samples...", pool_size);
@@ -150,9 +146,9 @@ auto Preprocessor::saveStatus() -> void {
     }
     const Toml toml(
         toml::ordered_table{
-            {"pool_size", best_size_},
             {"biases", biases},
             {"ranges", ranges},
+            {"pool_size", best_size_},
         }
     );
     std::ofstream os;

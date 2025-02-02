@@ -53,17 +53,6 @@ auto Utils::findAllRequiredFiles(const std::filesystem::path& path) -> bool {
 }
 
 /**
- * @brief 行列号 -> 键位.
- * @param row 行号.
- * @param col 列号.
- **/
-auto Utils::posOf(const Row row, const Col col) noexcept -> Pos {
-    assert(Utils::isLegalRow(row));
-    assert(Utils::isLegalCol(col));
-    return row * COL_COUNT + col;
-}
-
-/**
  * @brief 键位 -> 列号.
  * @param pos 键位.
  **/
@@ -81,10 +70,27 @@ auto Utils::rowOf(const Pos pos) noexcept -> Row {
     return pos / COL_COUNT;
 }
 
+/**
+ * @brief 行列号 -> 键位.
+ * @param row 行号.
+ * @param col 列号.
+ **/
+auto Utils::posOf(const Row row, const Col col) noexcept -> Pos {
+    assert(Utils::isLegalRow(row));
+    assert(Utils::isLegalCol(col));
+    return row * COL_COUNT + col;
+}
+
 auto Utils::taskIdOf(const MetricId m, const Language l) noexcept -> uz {
     return m * Language::_size() + l;
 }
 
+/**
+ * @brief 大驼峰式命名 -> 蛇形命名.
+ * @param pascal_case 大驼峰式命名 (例如 SomeName).
+ * @return 蛇形命名 (例如 some_name).
+ * @note 用于将枚举值转换为键值.
+ **/
 auto Utils::toSnakeCase(const std::string_view pascal_case) -> std::string {
     std::string str;
     for (uz i = 0; i < pascal_case.length(); ++i) {

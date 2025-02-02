@@ -6,17 +6,14 @@
 namespace clubmoss {
 
 class Evaluator;
-
-namespace metric {
-    class KeyCost;
-    class DisCost;
-    class SeqCost;
-}
+class Optimizer;
 
 class Sample : public Layout {
 public:
     explicit Sample(const Layout& layout);
     explicit Sample(Layout&& layout);
+
+    explicit Sample(const layout::baselines::Baseline &baseline);
 
     auto calcLoss() -> void;
     auto calcLossWithPenalty() -> void;
@@ -41,15 +38,15 @@ private:
     inline static std::array<fz, TASK_COUNT> ranges_{};
     inline static std::array<fz, TASK_COUNT> weights_{};
 
+    std::string name_;
+
     static auto fetchWeight(const Toml& node) -> fz;
 
     static constexpr char WHAT[]{"Illegal weight config: {:s}"};
     using IllegalCfg = IllegalToml<WHAT>;
 
-    friend class metric::KeyCost;
-    friend class metric::DisCost;
-    friend class metric::SeqCost;
     friend class Evaluator;
+    friend class Optimizer;
 };
 
 }

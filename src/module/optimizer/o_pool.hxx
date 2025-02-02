@@ -44,6 +44,7 @@ protected:
     auto reinitAndEvaluateSamples() noexcept -> void;
     auto updateAndEvaluateSamples() noexcept -> void;
     auto sortSamples() -> void;
+    auto unique() -> void;
 
     auto updateMse() -> void;
 

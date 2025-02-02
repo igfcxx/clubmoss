@@ -6,6 +6,9 @@ Sample::Sample(const Layout& layout) : Layout(layout) {}
 
 Sample::Sample(Layout&& layout) : Layout(layout) {}
 
+Sample::Sample(const layout::baselines::Baseline& baseline)
+    : Layout(baseline), name_{baseline.name} {}
+
 auto Sample::calcLoss() -> void {
     for (uz i = 0; i < TASK_COUNT; ++i) {
         const fz cost = (raw_costs_[i] - biases_[i]) / ranges_[i];
@@ -36,7 +39,7 @@ auto Sample::getRank() const noexcept -> uz {
 }
 
 auto Sample::getFlaws() const noexcept -> uz {
-     return flaws_;
+    return flaws_;
 }
 
 auto Sample::loadCfg(const Toml& score_cfg, const Toml& status) -> void {
