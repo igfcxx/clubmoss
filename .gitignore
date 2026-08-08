@@ -1,0 +1,10 @@
+# Build artifacts
+/CMakeLists.txt
+/cmake-build*/
+/.xmake/
+/build/
+
+# IDE configs
+/.vscode/
+/.idea/
+/.trae/
